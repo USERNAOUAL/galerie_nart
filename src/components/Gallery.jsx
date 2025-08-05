@@ -24,15 +24,18 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
   const [interestForm, setInterestForm] = useState({ name: '', email: '', message: '' });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedArtwork, setSelectedArtwork] = useState(null);
+  const [showStorageData, setShowStorageData] = useState(false);
 
-  // Fonction pour nettoyer le localStorage (utile pour le débogage)
-  const clearLocalStorage = () => {
-    localStorage.removeItem('nart_artworks');
-    localStorage.removeItem('nart_interests');
-    setArtworks(initialArtworks);
-    setInterests([]);
-    console.log('LocalStorage nettoyé');
+  // Fonction pour afficher les données du localStorage
+  const viewLocalStorageData = () => {
+    console.log('=== DEBUGGING LOCALSTORAGE ===');
+    console.log('Artworks:', artworks);
+    console.log('Interests:', interests);
+    console.log('LocalStorage artworks:', localStorage.getItem('nart_artworks'));
+    console.log('LocalStorage interests:', localStorage.getItem('nart_interests'));
+    setShowStorageData(true);
   };
+
 
   // Filtrer les œuvres par recherche seulement
   const filteredArtworks = artworks.filter(art => {
@@ -164,10 +167,10 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
             <button type="submit" style={{padding: '0.7em 2em', borderRadius: '1em', background: '#a13c2f', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '1.1em'}}>Ajouter l'œuvre</button>
           </form>
           <button 
-            onClick={clearLocalStorage} 
-            style={{padding: '0.5em 1.5em', borderRadius: '1em', background: '#666', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '0.9em'}}
+            onClick={viewLocalStorageData} 
+            style={{padding: '0.5em 1.5em', borderRadius: '1em', background: '#4CAF50', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '0.9em'}}
           >
-            🗑️ Nettoyer les données (Debug)
+            📊 Voir les données sauvegardées
           </button>
         </div>
       )}
@@ -398,6 +401,84 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                     📧 Ça m'intéresse
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal pour afficher les données du localStorage */}
+      {showStorageData && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'rgba(0,0,0,0.4)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999
+        }}>
+          <div style={{
+            background: '#fff',
+            padding: '2rem',
+            borderRadius: '1.5em',
+            boxShadow: '0 4px 32px #a13c2f33',
+            maxWidth: '90vw',
+            maxHeight: '90vh',
+            overflow: 'auto',
+            position: 'relative'
+          }}>
+            <button 
+              type="button" 
+              onClick={() => setShowStorageData(false)} 
+              style={{
+                position: 'absolute', 
+                top: '1rem', 
+                right: '1rem', 
+                background: 'none', 
+                border: 'none', 
+                fontSize: '1.5em', 
+                color: '#a13c2f', 
+                cursor: 'pointer'
+              }}
+            >
+              &times;
+            </button>
+            
+            <h2 style={{color: '#a13c2f', marginBottom: '1.5rem'}}>📊 Données sauvegardées</h2>
+            
+            <div style={{marginBottom: '2rem'}}>
+              <h3 style={{color: '#333', marginBottom: '1rem'}}>🎨 Œuvres d'art ({artworks.length})</h3>
+              <div style={{
+                background: '#f8f6f2', 
+                padding: '1rem', 
+                borderRadius: '1em', 
+                border: '1px solid #e0ddd6',
+                maxHeight: '200px',
+                overflow: 'auto'
+              }}>
+                <pre style={{fontSize: '0.85rem', color: '#333', margin: 0}}>
+                  {JSON.stringify(artworks, null, 2)}
+                </pre>
+              </div>
+            </div>
+            
+            <div>
+              <h3 style={{color: '#333', marginBottom: '1rem'}}>📧 Messages d'intérêt ({interests.length})</h3>
+              <div style={{
+                background: '#f8f6f2', 
+                padding: '1rem', 
+                borderRadius: '1em', 
+                border: '1px solid #e0ddd6',
+                maxHeight: '200px',
+                overflow: 'auto'
+              }}>
+                <pre style={{fontSize: '0.85rem', color: '#333', margin: 0}}>
+                  {JSON.stringify(interests, null, 2)}
+                </pre>
               </div>
             </div>
           </div>
