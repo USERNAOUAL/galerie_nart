@@ -9,10 +9,29 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
   const [interests, setInterests] = useState([]);
+  const [readMessages, setReadMessages] = useState(() => {
+    const saved = localStorage.getItem('nart_read_messages');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Calculer le nombre de messages non lus
+  const unreadCount = interests.filter(interest => 
+    !readMessages.includes(interest.artIdx + '_' + interest.name + '_' + interest.email)
+  ).length;
+
+  // Marquer tous les messages comme lus quand on ouvre la modal
+  const handleShowMessages = () => {
+    const newReadMessages = interests.map(interest => 
+      interest.artIdx + '_' + interest.name + '_' + interest.email
+    );
+    setReadMessages(newReadMessages);
+    localStorage.setItem('nart_read_messages', JSON.stringify(newReadMessages));
+    setShowMessages(true);
+  };
 
   return (
     <>
-      <Menu isAdmin={isAdmin} onShowMessages={() => setShowMessages(true)} />
+      <Menu isAdmin={isAdmin} onShowMessages={handleShowMessages} unreadCount={unreadCount} />
       <div style={{ textAlign: 'center', margin: '2rem 0' }}>
         <button
           onClick={() => setIsAdmin((prev) => !prev)}
