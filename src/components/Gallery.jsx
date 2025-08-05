@@ -3,23 +3,9 @@ import "../styles/Gallery.css";
 
 const initialArtworks = [
   {
-    title: "Oeuvre 1",
-    image: "/art1.jpg",
-    description: "Description de l'œuvre 1.",
-    likes: 0,
-    interested: 0
-  },
-  {
-    title: "Oeuvre 2",
-    image: "/art2.jpg",
-    description: "Description de l'œuvre 2.",
-    likes: 0,
-    interested: 0
-  },
-  {
-    title: "Oeuvre 3",
-    image: "/art3.jpg",
-    description: "Description de l'œuvre 3.",
+    title: "Exemple d'œuvre",
+    image: "https://via.placeholder.com/400x300/a13c2f/ffffff?text=Votre+Oeuvre",
+    description: "Ajoutez vos propres œuvres via le mode admin.",
     likes: 0,
     interested: 0
   }
@@ -28,6 +14,7 @@ const initialArtworks = [
 const Gallery = ({ isAdmin, interests, setInterests }) => {
   const [artworks, setArtworks] = useState(() => {
     const saved = localStorage.getItem('nart_artworks');
+    console.log('Données sauvegardées dans localStorage:', saved);
     return saved ? JSON.parse(saved) : initialArtworks;
   });
   const [newArt, setNewArt] = useState({ title: '', image: '', description: '' });
@@ -35,6 +22,15 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
   const [editArt, setEditArt] = useState({ title: '', image: '', description: '' });
   const [showFormIdx, setShowFormIdx] = useState(null);
   const [interestForm, setInterestForm] = useState({ name: '', email: '', message: '' });
+
+  // Fonction pour nettoyer le localStorage (utile pour le débogage)
+  const clearLocalStorage = () => {
+    localStorage.removeItem('nart_artworks');
+    localStorage.removeItem('nart_interests');
+    setArtworks(initialArtworks);
+    setInterests([]);
+    console.log('LocalStorage nettoyé');
+  };
 
   // Persistance artworks
   useEffect(() => {
@@ -100,32 +96,40 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
     <section className="gallery-section">
       <h2 className="gallery-title">Galerie d'œuvres</h2>
       {isAdmin && (
-        <form className="admin-form" onSubmit={handleAdd} style={{marginBottom: '2rem', textAlign: 'center'}}>
-          <input
-            type="text"
-            placeholder="Titre"
-            value={newArt.title}
-            onChange={e => setNewArt({ ...newArt, title: e.target.value })}
-            required
-            style={{marginRight: '1rem'}}
-          />
-          <input
-            type="text"
-            placeholder="URL de l'image"
-            value={newArt.image}
-            onChange={e => setNewArt({ ...newArt, image: e.target.value })}
-            required
-            style={{marginRight: '1rem'}}
-          />
-          <input
-            type="text"
-            placeholder="Description"
-            value={newArt.description}
-            onChange={e => setNewArt({ ...newArt, description: e.target.value })}
-            style={{marginRight: '1rem'}}
-          />
-          <button type="submit" style={{padding: '0.5em 1.5em', borderRadius: '1em', background: '#a13c2f', color: '#fff', border: 'none', fontWeight: 'bold'}}>Ajouter</button>
-        </form>
+        <div style={{marginBottom: '2rem', textAlign: 'center'}}>
+          <form className="admin-form" onSubmit={handleAdd} style={{marginBottom: '1rem'}}>
+            <input
+              type="text"
+              placeholder="Titre"
+              value={newArt.title}
+              onChange={e => setNewArt({ ...newArt, title: e.target.value })}
+              required
+              style={{marginRight: '1rem'}}
+            />
+            <input
+              type="text"
+              placeholder="URL de l'image"
+              value={newArt.image}
+              onChange={e => setNewArt({ ...newArt, image: e.target.value })}
+              required
+              style={{marginRight: '1rem'}}
+            />
+            <input
+              type="text"
+              placeholder="Description"
+              value={newArt.description}
+              onChange={e => setNewArt({ ...newArt, description: e.target.value })}
+              style={{marginRight: '1rem'}}
+            />
+            <button type="submit" style={{padding: '0.5em 1.5em', borderRadius: '1em', background: '#a13c2f', color: '#fff', border: 'none', fontWeight: 'bold'}}>Ajouter</button>
+          </form>
+          <button 
+            onClick={clearLocalStorage} 
+            style={{padding: '0.5em 1.5em', borderRadius: '1em', background: '#666', color: '#fff', border: 'none', fontWeight: 'bold', fontSize: '0.9em'}}
+          >
+            🗑️ Nettoyer les données (Debug)
+          </button>
+        </div>
       )}
       <div className="gallery-grid">
         {artworks.map((art, idx) => (
@@ -160,13 +164,13 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                   <button onClick={() => handleDelete(idx)} style={{padding: '0.3em 1em', borderRadius: '1em', background: '#a13c2f', color: '#fff', border: 'none', fontWeight: 'bold'}}>Supprimer</button>
                   {/* Affichage des intérêts reçus pour cette œuvre */}
                   {interests.filter(i => i.artIdx === idx).length > 0 && (
-                    <div style={{marginTop: '1rem', background: '#f8f6f2', padding: '1rem', borderRadius: '1em'}}>
-                      <h4 style={{marginBottom: '0.7rem'}}>Intéressés :</h4>
+                    <div style={{marginTop: '1rem', background: '#f8f6f2', padding: '1rem', borderRadius: '1em', border: '1px solid #e0ddd6'}}>
+                      <h4 style={{marginBottom: '0.7rem', color: '#a13c2f'}}>Intéressés :</h4>
                       {interests.filter(i => i.artIdx === idx).map((i, k) => (
-                        <div key={k} style={{marginBottom: '0.5rem', textAlign: 'left'}}>
-                          <strong>Nom :</strong> {i.name}<br/>
-                          <strong>Email :</strong> {i.email}<br/>
-                          {i.message && (<><strong>Message :</strong> {i.message}<br/></>)}
+                        <div key={k} style={{marginBottom: '0.5rem', textAlign: 'left', color: '#2c2c2c'}}>
+                          <strong style={{color: '#a13c2f'}}>Nom :</strong> <span style={{color: '#333'}}>{i.name}</span><br/>
+                          <strong style={{color: '#a13c2f'}}>Email :</strong> <span style={{color: '#333'}}>{i.email}</span><br/>
+                          {i.message && (<><strong style={{color: '#a13c2f'}}>Message :</strong> <span style={{color: '#333'}}>{i.message}</span><br/></>)}
                         </div>
                       ))}
                     </div>
@@ -218,3 +222,6 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
 };
 
 export default Gallery;
+
+
+// this is a basic comment to remove later

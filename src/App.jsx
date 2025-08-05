@@ -58,14 +58,14 @@ function App() {
           }}>
             <h2 style={{marginBottom: '1.2rem', color: '#a13c2f'}}>Messages d'intérêt reçus</h2>
             {interests.length === 0 ? (
-              <p>Aucun message reçu pour le moment.</p>
+              <p style={{color: '#333'}}>Aucun message reçu pour le moment.</p>
             ) : (
               interests.map((i, k) => (
-                <div key={k} style={{marginBottom: '1.2rem', textAlign: 'left', background: '#f8f6f2', padding: '1rem', borderRadius: '1em'}}>
-                  <strong>Œuvre :</strong> {i.artTitle}<br/>
-                  <strong>Nom :</strong> {i.name}<br/>
-                  <strong>Email :</strong> {i.email}<br/>
-                  {i.message && (<><strong>Message :</strong> {i.message}<br/></>)}
+                <div key={k} style={{marginBottom: '1.2rem', textAlign: 'left', background: '#f8f6f2', padding: '1rem', borderRadius: '1em', color: '#2c2c2c', border: '1px solid #e0ddd6'}}>
+                  <strong style={{color: '#a13c2f'}}>Œuvre :</strong> <span style={{color: '#333'}}>{i.artTitle}</span><br/>
+                  <strong style={{color: '#a13c2f'}}>Nom :</strong> <span style={{color: '#333'}}>{i.name}</span><br/>
+                  <strong style={{color: '#a13c2f'}}>Email :</strong> <span style={{color: '#333'}}>{i.email}</span><br/>
+                  {i.message && (<><strong style={{color: '#a13c2f'}}>Message :</strong> <span style={{color: '#333'}}>{i.message}</span><br/></>)}
                 </div>
               ))
             )}
