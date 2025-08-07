@@ -11,15 +11,15 @@
   font-size: 1.15rem;
   color: #222;
   cursor: pointer;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: bold;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
   padding: 0.1rem 0.7rem;
   border-radius: 8px;
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 .horizontal-links li:hover {
   background: #f8f6f2;
-  color: #a13c2f;
+  color: #a13c2f !important;
 }
 .menu {
   position: fixed;
@@ -94,14 +94,14 @@
   font-size: 1.15rem;
   color: #a13c2f;
   cursor: pointer;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-weight: 500;
   padding: 0.3rem 0.7rem;
   border-radius: 8px;
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
 }
 .menu-links li:hover {
-  color: #fff;
+  color: #fff !important;
   background: #a13c2f;
   box-shadow: 0 2px 8px #a13c2f33;
 }
@@ -130,7 +130,7 @@
   font-size: 1.15rem;
   color: #222;
   cursor: pointer;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-weight: 500;
   padding: 0.3rem 0.7rem;
   border-radius: 8px;
@@ -138,7 +138,7 @@
 }
 .centered-links li:hover {
   background: #f8f6f2;
-  color: #a13c2f;
+  color: #a13c2f !important;
 }
   }
   .logo, .small-logo {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import "../styles/Gallery.css";
 
 const initialArtworks = [
@@ -11,10 +12,15 @@ const initialArtworks = [
   }
 ];
 
-const Gallery = ({ isAdmin, interests, setInterests }) => {
+const Gallery = ({ isAdmin, interests, setInterests, artworks: propArtworks, setArtworks: setPropArtworks }) => {
+  const navigate = useNavigate();
+  
+  // Utiliser les artworks des props ou initialiser depuis localStorage
   const [artworks, setArtworks] = useState(() => {
+    if (propArtworks && propArtworks.length > 0) {
+      return propArtworks;
+    }
     const saved = localStorage.getItem('nart_artworks');
-    console.log('Données sauvegardées dans localStorage:', saved);
     return saved ? JSON.parse(saved) : initialArtworks;
   });
   const [newArt, setNewArt] = useState({ title: '', image: '', description: '' });
@@ -25,6 +31,7 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedArtwork, setSelectedArtwork] = useState(null);
   const [showStorageData, setShowStorageData] = useState(false);
+  const [selectedImageModal, setSelectedImageModal] = useState(null);
 
   // Fonction pour afficher les données du localStorage
   const viewLocalStorageData = () => {
@@ -43,10 +50,20 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
     return matchesSearch;
   });
 
-  // Persistance artworks
+  // Persistance artworks et synchronisation avec les props
   useEffect(() => {
     localStorage.setItem('nart_artworks', JSON.stringify(artworks));
-  }, [artworks]);
+    if (setPropArtworks) {
+      setPropArtworks(artworks);
+    }
+  }, [artworks, setPropArtworks]);
+
+  // Synchroniser avec les props si elles changent
+  useEffect(() => {
+    if (propArtworks && propArtworks.length > 0) {
+      setArtworks(propArtworks);
+    }
+  }, [propArtworks]);
 
   // Persistance interests
   useEffect(() => {
@@ -426,11 +443,13 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                   <img 
                     src={art.image} 
                     alt={art.title} 
+                    onClick={() => setSelectedImageModal(art)}
                     style={{
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover',
-                      transition: 'transform 0.4s ease'
+                      transition: 'transform 0.4s ease',
+                      cursor: 'pointer'
                     }}
                     onMouseOver={(e) => {
                       e.target.style.transform = 'scale(1.05)';
@@ -579,7 +598,7 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                         </button>
                         
                         <button 
-                          onClick={() => setSelectedArtwork(art)} 
+                          onClick={() => navigate(`/artwork/${realIdx}`)} 
                           style={{
                             padding: '0.7rem 1.2rem',
                             borderRadius: '20px',
@@ -684,6 +703,103 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
             );
           })}
         </div>
+
+        {/* Modal pour affichage image en grand */}
+        {selectedImageModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(255, 255, 255, 0.15)',
+            backdropFilter: 'blur(20px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10000
+          }}
+          onClick={() => setSelectedImageModal(null)}
+          >
+            <div style={{
+              position: 'relative',
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onClick={(e) => e.stopPropagation()}
+            >
+              {/* Bouton fermer */}
+              <button 
+                onClick={() => setSelectedImageModal(null)} 
+                style={{
+                  position: 'absolute',
+                  top: '-50px',
+                  right: '0',
+                  background: 'rgba(161, 60, 47, 0.9)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  fontSize: '1.5rem',
+                  cursor: 'pointer',
+                  zIndex: 10001,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.background = 'rgba(161, 60, 47, 1)';
+                  e.target.style.transform = 'scale(1.1)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.background = 'rgba(161, 60, 47, 0.9)';
+                  e.target.style.transform = 'scale(1)';
+                }}
+              >
+                ×
+              </button>
+              
+              {/* Image principale */}
+              <img 
+                src={selectedImageModal.image} 
+                alt={selectedImageModal.title} 
+                style={{
+                  maxWidth: '100%',
+                  maxHeight: '85vh',
+                  objectFit: 'contain',
+                  borderRadius: '15px',
+                  boxShadow: '0 20px 60px rgba(0, 0, 0, 0.5)'
+                }}
+              />
+              
+              {/* Titre discret */}
+              <h3 style={{
+                color: '#2c3e50',
+                fontFamily: "'Playfair Display', serif",
+                fontSize: '1.5rem',
+                fontWeight: '600',
+                marginTop: '1.5rem',
+                textAlign: 'center',
+                textShadow: '0 2px 10px rgba(255, 255, 255, 0.8)',
+                letterSpacing: '0.05em',
+                background: 'rgba(255, 255, 255, 0.9)',
+                padding: '0.5rem 1.5rem',
+                borderRadius: '20px',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(161, 60, 47, 0.2)'
+              }}>
+                {selectedImageModal.title}
+              </h3>
+            </div>
+          </div>
+        )}
 
         {/* Modal pour voir les détails d'une œuvre */}
         {selectedArtwork && (
