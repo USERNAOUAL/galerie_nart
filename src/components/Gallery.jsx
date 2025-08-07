@@ -114,19 +114,22 @@ const Gallery = ({ isAdmin, interests, setInterests, artworks: propArtworks, set
   };
 
   return (
-    <section style={{
-      padding: '4rem 2rem 6rem',
-      background: `
-        linear-gradient(135deg, rgba(248, 246, 242, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%),
-        radial-gradient(circle at 15% 20%, rgba(161, 60, 47, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 85% 80%, rgba(161, 60, 47, 0.06) 0%, transparent 50%),
-        radial-gradient(circle at 45% 60%, rgba(44, 62, 80, 0.04) 0%, transparent 40%),
-        linear-gradient(45deg, #f8f6f2 0%, #ffffff 50%, #f0ede7 100%)
-      `,
-      minHeight: '100vh',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
+    <section 
+      id="gallery-section"
+      className="gallery-container"
+      style={{
+        padding: '4rem 2rem 6rem',
+        background: `
+          linear-gradient(135deg, rgba(248, 246, 242, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%),
+          radial-gradient(circle at 15% 20%, rgba(161, 60, 47, 0.08) 0%, transparent 50%),
+          radial-gradient(circle at 85% 80%, rgba(161, 60, 47, 0.06) 0%, transparent 50%),
+          radial-gradient(circle at 45% 60%, rgba(44, 62, 80, 0.04) 0%, transparent 40%),
+          linear-gradient(45deg, #f8f6f2 0%, #ffffff 50%, #f0ede7 100%)
+        `,
+        minHeight: '100vh',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
       <div style={{
         maxWidth: '1400px',
         margin: '0 auto',

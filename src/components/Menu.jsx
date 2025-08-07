@@ -23,7 +23,16 @@ const Menu = ({ isAdmin, onShowMessages, unreadCount = 0 }) => {
           Accueil
         </li>
         <li 
-          onClick={() => navigate('/')} 
+          onClick={() => {
+            navigate('/');
+            // Scroll vers la section galerie après un petit délai pour s'assurer que la page est chargée
+            setTimeout(() => {
+              const gallerySection = document.querySelector('.gallery-container');
+              if (gallerySection) {
+                gallerySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }, 100);
+          }} 
           style={{ 
             cursor: 'pointer',
             color: location.pathname === '/' ? '#a13c2f' : '#222'
