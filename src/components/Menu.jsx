@@ -32,9 +32,11 @@ const Menu = ({ isAdmin, onShowMessages, unreadCount = 0 }) => {
           Galerie
         </li>
         <li 
+          onClick={() => navigate('/about')} 
           style={{ 
-            cursor: 'pointer', 
-            color: '#a13c2f'
+            cursor: 'pointer',
+            color: location.pathname === '/about' ? '#a13c2f' : '#222',
+            fontWeight: location.pathname === '/about' ? 'bold' : 'normal'
           }}
         >
           À propos

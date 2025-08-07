@@ -4,6 +4,7 @@ import Menu from './components/Menu';
 import Gallery from './components/Gallery';
 import ArtworkDetail from './components/ArtworkDetail';
 import ArtworkImage from './components/ArtworkImage';
+import About from './components/About';
 
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -255,6 +256,11 @@ function App() {
                 artworks={artworks}
               />
             } 
+          />
+          
+          <Route 
+            path="/about" 
+            element={<About />} 
           />
         </Routes>
         
