@@ -546,7 +546,9 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                     display: 'flex',
                     flexWrap: 'wrap',
                     gap: '0.8rem',
-                    marginTop: '1.5rem'
+                    marginTop: '1.5rem',
+                    justifyContent: 'center',
+                    alignItems: 'center'
                   }}>
                     {!isAdmin && (
                       <>
@@ -849,7 +851,12 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                         resize: 'vertical'
                       }}
                     />
-                    <div style={{display: 'flex', gap: '1rem'}}>
+                    <div style={{
+                      display: 'flex', 
+                      gap: '1rem',
+                      justifyContent: 'center',
+                      alignItems: 'center'
+                    }}>
                       <button 
                         type="submit" 
                         style={{
@@ -882,23 +889,30 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                     </div>
                   </form>
                 ) : (
-                  <button 
-                    onClick={() => setShowFormIdx(artworks.findIndex(a => a === selectedArtwork))}
-                    style={{
-                      padding: '1rem 2rem',
-                      borderRadius: '25px',
-                      background: 'linear-gradient(135deg, #a13c2f 0%, #8b2f23 100%)',
-                      color: '#fff',
-                      border: 'none',
-                      fontWeight: '600',
-                      fontSize: '1.1rem',
-                      cursor: 'pointer',
-                      boxShadow: '0 8px 25px rgba(161, 60, 47, 0.3)',
-                      transition: 'all 0.3s ease'
-                    }}
-                  >
-                    💌 Ça m'intéresse !
-                  </button>
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginTop: '1rem'
+                  }}>
+                    <button 
+                      onClick={() => setShowFormIdx(artworks.findIndex(a => a === selectedArtwork))}
+                      style={{
+                        padding: '1rem 2rem',
+                        borderRadius: '25px',
+                        background: 'linear-gradient(135deg, #a13c2f 0%, #8b2f23 100%)',
+                        color: '#fff',
+                        border: 'none',
+                        fontWeight: '600',
+                        fontSize: '1.1rem',
+                        cursor: 'pointer',
+                        boxShadow: '0 8px 25px rgba(161, 60, 47, 0.3)',
+                        transition: 'all 0.3s ease'
+                      }}
+                    >
+                      💌 Ça m'intéresse !
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
