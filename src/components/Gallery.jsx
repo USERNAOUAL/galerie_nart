@@ -99,29 +99,75 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
   return (
     <section style={{
       padding: '4rem 2rem 6rem',
-      background: 'linear-gradient(135deg, #f8f6f2 0%, #ffffff 100%)',
-      minHeight: '100vh'
+      background: `
+        linear-gradient(135deg, rgba(248, 246, 242, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%),
+        radial-gradient(circle at 15% 20%, rgba(161, 60, 47, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 85% 80%, rgba(161, 60, 47, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 45% 60%, rgba(44, 62, 80, 0.04) 0%, transparent 40%),
+        linear-gradient(45deg, #f8f6f2 0%, #ffffff 50%, #f0ede7 100%)
+      `,
+      minHeight: '100vh',
+      position: 'relative',
+      overflow: 'hidden'
     }}>
       <div style={{
         maxWidth: '1400px',
-        margin: '0 auto'
+        margin: '0 auto',
+        position: 'relative',
+        zIndex: 2
       }}>
+        
+        {/* Effet décoratif en arrière-plan */}
+        <div style={{
+          position: 'absolute',
+          top: '-50px',
+          left: '-50px',
+          width: '200px',
+          height: '200px',
+          background: 'radial-gradient(circle, rgba(161, 60, 47, 0.06) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(40px)',
+          zIndex: 1
+        }}></div>
+        
+        <div style={{
+          position: 'absolute',
+          bottom: '100px',
+          right: '-30px',
+          width: '150px',
+          height: '150px',
+          background: 'radial-gradient(circle, rgba(44, 62, 80, 0.05) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(30px)',
+          zIndex: 1
+        }}></div>
         
         {/* Barre de recherche élégante pour visiteurs */}
         {!isAdmin && (
           <div style={{
             marginBottom: '4rem', 
-            textAlign: 'center'
+            textAlign: 'center',
+            width: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
           }}>
             <div style={{
-              background: 'rgba(255, 255, 255, 0.8)',
-              backdropFilter: 'blur(10px)',
-              borderRadius: '25px',
-              padding: '2rem',
-              boxShadow: '0 8px 32px rgba(161, 60, 47, 0.1)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              maxWidth: '600px',
-              margin: '0 auto'
+              background: 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(15px)',
+              borderRadius: '30px',
+              padding: '2.5rem',
+              boxShadow: '0 20px 60px rgba(161, 60, 47, 0.12), 0 8px 25px rgba(0, 0, 0, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              maxWidth: '650px',
+              width: '100%',
+              margin: '0 auto',
+              position: 'relative',
+              zIndex: 3,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center'
             }}>
               <h2 style={{
                 fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
@@ -141,7 +187,12 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                 }}> collection</span>
               </h2>
               
-              <div style={{position: 'relative'}}>
+              <div style={{
+                position: 'relative',
+                width: '100%',
+                maxWidth: '500px',
+                margin: '0 auto'
+              }}>
                 <input
                   type="text"
                   placeholder="🎨 Rechercher une œuvre d'art..."
@@ -153,10 +204,13 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                     borderRadius: '20px',
                     border: '2px solid rgba(161, 60, 47, 0.2)',
                     fontSize: '1.1rem',
-                    fontFamily: "'Montserrat', sans-serif",
-                    background: 'rgba(255, 255, 255, 0.9)',
+                    fontFamily: "'Roboto', sans-serif",
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    color: '#2c3e50',
                     transition: 'all 0.3s ease',
-                    outline: 'none'
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    textAlign: 'left'
                   }}
                   onFocus={(e) => {
                     e.target.style.borderColor = '#a13c2f';
@@ -173,7 +227,7 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                 color: '#5a6c7d', 
                 fontSize: '1rem',
                 marginTop: '1rem',
-                fontFamily: "'Montserrat', sans-serif",
+                fontFamily: "'Roboto', sans-serif",
                 fontWeight: '500'
               }}>
                 ✨ {filteredArtworks.length} œuvre{filteredArtworks.length > 1 ? 's' : ''} disponible{filteredArtworks.length > 1 ? 's' : ''}
@@ -234,7 +288,7 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                       borderRadius: '15px',
                       border: '2px solid rgba(161, 60, 47, 0.2)',
                       fontSize: '1rem',
-                      fontFamily: "'Montserrat', sans-serif",
+                      fontFamily: "'Roboto', sans-serif",
                       background: 'rgba(255, 255, 255, 0.8)',
                       transition: 'all 0.3s ease'
                     }}
@@ -250,7 +304,7 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                       borderRadius: '15px',
                       border: '2px solid rgba(161, 60, 47, 0.2)',
                       fontSize: '1rem',
-                      fontFamily: "'Montserrat', sans-serif",
+                      fontFamily: "'Roboto', sans-serif",
                       background: 'rgba(255, 255, 255, 0.8)',
                       transition: 'all 0.3s ease'
                     }}
@@ -267,7 +321,7 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                     borderRadius: '15px',
                     border: '2px solid rgba(161, 60, 47, 0.2)',
                     fontSize: '1rem',
-                    fontFamily: "'Montserrat', sans-serif",
+                    fontFamily: "'Roboto', sans-serif",
                     background: 'rgba(255, 255, 255, 0.8)',
                     marginBottom: '2rem',
                     transition: 'all 0.3s ease'
@@ -284,7 +338,7 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                     border: 'none',
                     fontWeight: '600',
                     fontSize: '1.1rem',
-                    fontFamily: "'Montserrat', sans-serif",
+                    fontFamily: "'Roboto', sans-serif",
                     cursor: 'pointer',
                     boxShadow: '0 8px 25px rgba(161, 60, 47, 0.3)',
                     transition: 'all 0.3s ease',
@@ -313,7 +367,7 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                     border: 'none',
                     fontWeight: '600',
                     fontSize: '1rem',
-                    fontFamily: "'Montserrat', sans-serif",
+                    fontFamily: "'Roboto', sans-serif",
                     cursor: 'pointer',
                     boxShadow: '0 8px 25px rgba(44, 62, 80, 0.3)',
                     transition: 'all 0.3s ease'
@@ -420,7 +474,7 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                           borderRadius: '12px',
                           border: '2px solid rgba(161, 60, 47, 0.2)',
                           fontSize: '1rem',
-                          fontFamily: "'Montserrat', sans-serif"
+                          fontFamily: "'Roboto', sans-serif"
                         }} 
                         placeholder="Titre"
                       />
@@ -436,7 +490,7 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                           borderRadius: '12px',
                           border: '2px solid rgba(161, 60, 47, 0.2)',
                           fontSize: '1rem',
-                          fontFamily: "'Montserrat', sans-serif"
+                          fontFamily: "'Roboto', sans-serif"
                         }} 
                         placeholder="URL de l'image"
                       />
@@ -451,7 +505,7 @@ const Gallery = ({ isAdmin, interests, setInterests }) => {
                           borderRadius: '12px',
                           border: '2px solid rgba(161, 60, 47, 0.2)',
                           fontSize: '1rem',
-                          fontFamily: "'Montserrat', sans-serif"
+                          fontFamily: "'Roboto', sans-serif"
                         }} 
                         placeholder="Description"
                       />

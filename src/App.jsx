@@ -5,6 +5,14 @@ import Gallery from './components/Gallery';
 
 import { useState } from 'react';
 
+// Import des polices Google Fonts
+const fontLink = document.createElement('link');
+fontLink.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;600;700&family=Roboto:wght@300;400;500;600;700&display=swap';
+fontLink.rel = 'stylesheet';
+if (!document.head.querySelector(`link[href="${fontLink.href}"]`)) {
+  document.head.appendChild(fontLink);
+}
+
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
@@ -34,14 +42,15 @@ function App() {
       <Menu isAdmin={isAdmin} onShowMessages={handleShowMessages} unreadCount={unreadCount} />
       
       {/* Section Hero inspirée - Style artistique */}
-      <div style={{
+      <div className="hero-section" style={{
         position: 'relative',
-        height: '70vh',
-        minHeight: '500px',
+        height: '80vh',
+        minHeight: '600px',
         width: '100%',
-        backgroundImage: 'linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.35)), url("/art-background.jpg")',
+        backgroundImage: 'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url("/art-background.jpg")',
         backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundPosition: 'center center',
+        backgroundRepeat: 'no-repeat',
         backgroundAttachment: 'fixed',
         display: 'flex',
         flexDirection: 'column',
@@ -49,8 +58,11 @@ function App() {
         justifyContent: 'center',
         textAlign: 'center',
         margin: '0',
-        borderRadius: '0 0 40px 40px',
-        overflow: 'hidden'
+        borderRadius: '0 0 50px 50px',
+        overflow: 'hidden',
+        boxSizing: 'border-box',
+        paddingTop: '2rem',
+        paddingBottom: '6rem'
       }}>
         {/* Effet de particules artistiques */}
         <div style={{
@@ -64,17 +76,20 @@ function App() {
         }}></div>
         
         {/* Logo centré avec effet glassmorphism */}
-        <div style={{
+        <div className="hero-logo" style={{
           background: 'rgba(255, 255, 255, 0.15)',
-          backdropFilter: 'blur(10px)',
+          backdropFilter: 'blur(15px)',
           borderRadius: '50%',
           padding: '2.5rem',
-          marginBottom: '2rem',
-          marginTop: '2rem',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+          marginBottom: '1.5rem',
+          marginTop: '0rem',
+          border: '1px solid rgba(255, 255, 255, 0.25)',
+          boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15)',
           position: 'relative',
-          zIndex: 2
+          zIndex: 3,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}>
           <img 
             src="/nart-logo.png" 
@@ -92,58 +107,72 @@ function App() {
         </div>
         
         {/* Message principal inspirant */}
-        <h1 style={{
-          fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
-          fontFamily: "'Playfair Display', serif",
-          fontWeight: '300',
-          color: '#ffffff',
-          marginBottom: '1rem',
-          letterSpacing: '0.15em',
-          textShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
+        <div className="hero-content" style={{
+          maxWidth: '900px',
+          width: '100%',
+          padding: '0 2rem',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
           position: 'relative',
-          zIndex: 2,
-          lineHeight: '1.2'
+          zIndex: 3
         }}>
-          Créer des émotions
-          <br />
-          <span style={{
-            fontWeight: '700',
-            background: 'linear-gradient(135deg, #ffffff 0%, #f8f6f2 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
+          <h1 style={{
+            fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
+            fontFamily: "'Playfair Display', serif",
+            fontWeight: '300',
+            color: '#ffffff',
+            marginBottom: '1rem',
+            marginTop: '-1rem',
+            letterSpacing: '0.15em',
+            textShadow: '0 4px 25px rgba(0, 0, 0, 0.6)',
+            lineHeight: '1.2',
+            textAlign: 'center'
           }}>
-            à travers l'art
-          </span>
-        </h1>
-        
-        {/* Sous-titre élégant */}
-        <p style={{
-          fontSize: 'clamp(1.2rem, 3vw, 1.5rem)',
-          color: 'rgba(255, 255, 255, 0.9)',
-          fontFamily: "'Montserrat', sans-serif",
-          fontWeight: '300',
-          letterSpacing: '0.05em',
-          textShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
-          maxWidth: '600px',
-          margin: '0 auto',
-          position: 'relative',
-          zIndex: 2
-        }}>
-          Découvrez l'authenticité de l'art véritable
-        </p>
+            Créer des émotions
+            <br />
+            <span style={{
+              fontWeight: '700',
+              background: 'linear-gradient(135deg, #ffffff 0%, #f8f6f2 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              à travers l'art
+            </span>
+          </h1>
+          
+          {/* Sous-titre élégant */}
+          <p style={{
+            fontSize: 'clamp(1.2rem, 3vw, 1.6rem)',
+            color: 'rgba(255, 255, 255, 0.95)',
+            fontFamily: "'Roboto', sans-serif",
+            fontWeight: '300',
+            letterSpacing: '0.05em',
+            textShadow: '0 3px 15px rgba(0, 0, 0, 0.4)',
+            maxWidth: '700px',
+            margin: '-0.5rem auto 0 auto',
+            textAlign: 'center',
+            lineHeight: '1.4'
+          }}>
+            Découvrez l'authenticité de l'art véritable
+          </p>
+        </div>
         
         {/* Flèche descendante animée */}
         <div style={{
           position: 'absolute',
-          bottom: '2rem',
+          bottom: '3rem',
           left: '50%',
           transform: 'translateX(-50%)',
-          color: 'rgba(255, 255, 255, 0.8)',
-          fontSize: '2rem',
+          color: 'rgba(255, 255, 255, 0.85)',
+          fontSize: '2.5rem',
           animation: 'bounce 2s infinite',
           cursor: 'pointer',
-          zIndex: 2
+          zIndex: 3,
+          textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)'
         }}>
           ↓
         </div>
@@ -162,6 +191,50 @@ function App() {
             transform: translateX(-50%) translateY(-5px);
           }
         }
+        
+        /* Force l'utilisation de Roboto pour tous les éléments */
+        * {
+          font-family: 'Roboto', sans-serif !important;
+        }
+        
+        /* Exception pour les titres qui gardent Playfair Display */
+        h1, h2, h3, .title {
+          font-family: 'Playfair Display', serif !important;
+        }
+        
+        /* Responsive pour la section hero */
+        @media (max-width: 768px) {
+          .hero-section {
+            height: 70vh !important;
+            min-height: 500px !important;
+            border-radius: 0 0 30px 30px !important;
+          }
+          
+          .hero-logo {
+            padding: 2rem !important;
+            margin-bottom: 2rem !important;
+          }
+          
+          .hero-content {
+            padding: 0 1.5rem !important;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .hero-section {
+            height: 60vh !important;
+            min-height: 450px !important;
+          }
+          
+          .hero-logo {
+            padding: 1.5rem !important;
+          }
+          
+          .hero-logo img {
+            height: 100px !important;
+            width: 100px !important;
+          }
+        }
       `}</style>
 
       <div style={{ textAlign: 'center', margin: '4rem 0' }}>
@@ -178,7 +251,7 @@ function App() {
             cursor: 'pointer',
             boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
             transition: 'all 0.3s ease',
-            fontFamily: "'Montserrat', sans-serif",
+            fontFamily: "'Roboto', sans-serif",
             letterSpacing: '0.05em'
           }}
           onMouseOver={(e) => {
