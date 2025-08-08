@@ -1,0 +1,32 @@
+# Configuration des interactions utilisateurs
+# Ce fichier stocke les likes et messages d'intérêt pour chaque œuvre d'art
+
+artwork_interactions:
+  # Exemple pour l'œuvre avec l'ID "painting-sunset"
+  painting-sunset:
+    likes: 5
+    messages:
+      - name: "Marie Dubois"
+        email: "marie.dubois@email.com"
+        message: "Cette œuvre me touche profondément. J'aimerais en savoir plus sur votre technique."
+        timestamp: 1672531200000
+      - name: "Pierre Martin"
+        email: "p.martin@gmail.com"
+        message: "Magnifique travail sur les couleurs !"
+        timestamp: 1672617600000
+        
+  # Exemple pour l'œuvre avec l'ID "painting-ocean"
+  painting-ocean:
+    likes: 3
+    messages:
+      - name: "Sophie Laurent"
+        email: "sophie.l@outlook.fr"
+        message: "Cette peinture dégage une sérénité incroyable"
+        timestamp: 1672704000000
+
+# Instructions d'utilisation :
+# 1. Chaque œuvre est identifiée par son ID (celui défini dans config.yaml)
+# 2. Les likes sont un simple nombre
+# 3. Les messages contiennent : name, email, message, timestamp
+# 4. Le timestamp est en millisecondes (Date.now() en JavaScript)
+# 5. Pour ajouter de nouvelles interactions, ajoutez simplement une nouvelle entrée avec l'ID de l'œuvre

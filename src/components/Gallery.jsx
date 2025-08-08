@@ -2,30 +2,189 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import "../styles/Gallery.css";
 
-const initialArtworks = [
-  {
-    title: "Exemple d'œuvre",
-    image: "https://via.placeholder.com/400x300/a13c2f/ffffff?text=Votre+Oeuvre",
-    description: "Ajoutez vos propres œuvres via le mode admin.",
-    likes: 0,
-    interested: 0
+// Fonction pour charger les interactions depuis le fichier YAML
+const loadInteractionsFromConfig = async () => {
+  try {
+    const response = await fetch('/artworks/interactions.yaml');
+    if (!response.ok) {
+      console.log('Fichier interactions.yaml non trouvé, utilisation des valeurs par défaut');
+      return {};
+    }
+    const yamlText = await response.text();
+    
+    // Parser YAML simple pour les interactions
+    const lines = yamlText.split('\n');
+    const interactions = {};
+    let currentArtworkId = null;
+    let currentMessage = null;
+    let inMessages = false;
+    
+    for (const line of lines) {
+      const trimmed = line.trim();
+      
+      if (trimmed.includes(':') && !trimmed.startsWith('-') && !trimmed.startsWith('#')) {
+        const parts = trimmed.split(':');
+        const key = parts[0].trim();
+        const value = parts.slice(1).join(':').trim();
+        
+        // Nouvelle œuvre
+        if (line.indexOf(key) === 2) { // Indentation de 2 espaces = nouvelle œuvre
+          currentArtworkId = key;
+          interactions[currentArtworkId] = { likes: 0, messages: [] };
+          inMessages = false;
+        }
+        // Propriétés de l'œuvre
+        else if (currentArtworkId && line.indexOf(key) === 4) { // Indentation de 4 espaces
+          if (key === 'likes') {
+            interactions[currentArtworkId].likes = parseInt(value) || 0;
+          } else if (key === 'messages') {
+            inMessages = true;
+          }
+        }
+        // Propriétés du message
+        else if (currentMessage && inMessages && line.indexOf(key) === 8) { // Indentation de 8 espaces
+          if (key === 'name') {
+            currentMessage.name = value.replace(/['"]/g, '');
+          } else if (key === 'email') {
+            currentMessage.email = value.replace(/['"]/g, '');
+          } else if (key === 'message') {
+            currentMessage.message = value.replace(/['"]/g, '');
+          } else if (key === 'timestamp') {
+            currentMessage.timestamp = parseInt(value) || Date.now();
+          }
+        }
+      }
+      // Nouveau message
+      else if (trimmed.startsWith('- name:') && inMessages && currentArtworkId) {
+        if (currentMessage) {
+          interactions[currentArtworkId].messages.push(currentMessage);
+        }
+        currentMessage = { name: trimmed.split(':')[1].trim().replace(/['"]/g, '') };
+      }
+    }
+    
+    // Ajouter le dernier message s'il existe
+    if (currentMessage && currentArtworkId) {
+      interactions[currentArtworkId].messages.push(currentMessage);
+    }
+    
+    return interactions;
+  } catch (error) {
+    console.error('Erreur lors du chargement des interactions:', error);
+    return {};
   }
-];
+};
+
+// Fonction pour sauvegarder les interactions (simulation - en réalité nécessiterait un backend)
+const saveInteractionsToConfig = async (interactions) => {
+  try {
+    // En mode développement, on affiche la structure à sauvegarder
+    console.log('=== INTERACTIONS À SAUVEGARDER ===');
+    
+    let yamlOutput = '# Configuration des interactions utilisateurs\n';
+    yamlOutput += '# Ce fichier stocke les likes et messages d\'intérêt pour chaque œuvre d\'art\n\n';
+    yamlOutput += 'artwork_interactions:\n';
+    
+    for (const [artworkId, data] of Object.entries(interactions)) {
+      yamlOutput += `  ${artworkId}:\n`;
+      yamlOutput += `    likes: ${data.likes || 0}\n`;
+      yamlOutput += `    messages:\n`;
+      
+      if (data.messages && data.messages.length > 0) {
+        for (const message of data.messages) {
+          yamlOutput += `      - name: "${message.name}"\n`;
+          yamlOutput += `        email: "${message.email}"\n`;
+          yamlOutput += `        message: "${message.message}"\n`;
+          yamlOutput += `        timestamp: ${message.timestamp}\n`;
+        }
+      }
+      yamlOutput += '\n';
+    }
+    
+    console.log(yamlOutput);
+    console.log('=== FIN INTERACTIONS À SAUVEGARDER ===');
+    
+    // Dans un vrai projet, il faudrait un endpoint backend pour sauvegarder
+    // Pour l'instant, on stocke temporairement dans localStorage comme fallback
+    localStorage.setItem('nart_interactions_backup', JSON.stringify(interactions));
+    
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde des interactions:', error);
+    return false;
+  }
+};
+
+// Fonction pour charger la configuration des œuvres depuis le fichier YAML
+const loadArtworksFromConfig = async () => {
+  try {
+    const response = await fetch('/artworks/config.yaml');
+    if (!response.ok) {
+      throw new Error('Impossible de charger le fichier de configuration');
+    }
+    const yamlText = await response.text();
+    
+    // Parser YAML simple (sans dépendance externe pour commencer)
+    const lines = yamlText.split('\n');
+    const artworks = [];
+    let currentArtwork = null;
+    
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('- id:')) {
+        if (currentArtwork) artworks.push(currentArtwork);
+        currentArtwork = { 
+          id: trimmed.split(':')[1].trim().replace(/['"]/g, ''),
+          likes: 0,
+          interested: 0
+        };
+      } else if (currentArtwork) {
+        if (trimmed.startsWith('title:')) {
+          currentArtwork.title = trimmed.split(':')[1].trim().replace(/['"]/g, '');
+        } else if (trimmed.startsWith('description:')) {
+          currentArtwork.description = trimmed.split(':')[1].trim().replace(/['"]/g, '');
+        } else if (trimmed.startsWith('dimensions:')) {
+          currentArtwork.dimensions = trimmed.split(':')[1].trim().replace(/['"]/g, '');
+        } else if (trimmed.startsWith('image:')) {
+          currentArtwork.image = `/artworks/${trimmed.split(':')[1].trim().replace(/['"]/g, '')}`;
+        }
+      }
+    }
+    if (currentArtwork) artworks.push(currentArtwork);
+    
+    // Charger les interactions et les appliquer aux œuvres
+    const interactions = await loadInteractionsFromConfig();
+    const artworksWithInteractions = artworks.map(artwork => ({
+      ...artwork,
+      likes: interactions[artwork.id]?.likes || 0,
+      interested: interactions[artwork.id]?.messages?.length || 0
+    }));
+    
+    return artworksWithInteractions;
+  } catch (error) {
+    console.error('Erreur lors du chargement des œuvres:', error);
+    // Fallback vers les œuvres par défaut
+    return [
+      {
+        id: "default-1",
+        title: "Exemple d'œuvre",
+        image: "https://via.placeholder.com/400x300/a13c2f/ffffff?text=Votre+Oeuvre",
+        description: "Ajoutez vos propres œuvres via le fichier config.yaml",
+        dimensions: "50x70 cm",
+        likes: 0,
+        interested: 0
+      }
+    ];
+  }
+};
 
 const Gallery = ({ isAdmin, interests, setInterests, artworks: propArtworks, setArtworks: setPropArtworks }) => {
   const navigate = useNavigate();
   
-  // Utiliser les artworks des props ou initialiser depuis localStorage
-  const [artworks, setArtworks] = useState(() => {
-    if (propArtworks && propArtworks.length > 0) {
-      return propArtworks;
-    }
-    const saved = localStorage.getItem('nart_artworks');
-    return saved ? JSON.parse(saved) : initialArtworks;
-  });
-  const [newArt, setNewArt] = useState({ title: '', image: '', description: '' });
-  const [editIdx, setEditIdx] = useState(null);
-  const [editArt, setEditArt] = useState({ title: '', image: '', description: '' });
+  // Charger les œuvres depuis le fichier de configuration
+  const [artworks, setArtworks] = useState([]);
+  const [interactions, setInteractions] = useState({});
+  const [loading, setLoading] = useState(true);
   const [showFormIdx, setShowFormIdx] = useState(null);
   const [interestForm, setInterestForm] = useState({ name: '', email: '', message: '' });
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,13 +192,51 @@ const Gallery = ({ isAdmin, interests, setInterests, artworks: propArtworks, set
   const [showStorageData, setShowStorageData] = useState(false);
   const [selectedImageModal, setSelectedImageModal] = useState(null);
 
-  // Fonction pour afficher les données du localStorage
+  // Charger les œuvres et interactions au montage du composant
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      
+      // Charger les œuvres et interactions en parallèle
+      const [configArtworks, loadedInteractions] = await Promise.all([
+        loadArtworksFromConfig(),
+        loadInteractionsFromConfig()
+      ]);
+      
+      setArtworks(configArtworks);
+      setInteractions(loadedInteractions);
+      
+      // Mettre à jour les interests depuis les interactions chargées
+      const allMessages = [];
+      for (const [artworkId, data] of Object.entries(loadedInteractions)) {
+        if (data.messages && Array.isArray(data.messages)) {
+          data.messages.forEach(message => {
+            allMessages.push({
+              ...message,
+              artworkId,
+              artTitle: configArtworks.find(art => art.id === artworkId)?.title || 'Œuvre inconnue'
+            });
+          });
+        }
+      }
+      setInterests(allMessages);
+      
+      if (setPropArtworks) {
+        setPropArtworks(configArtworks);
+      }
+      setLoading(false);
+    };
+    
+    loadData();
+  }, [setPropArtworks, setInterests]);
+
+  // Fonction pour afficher les données de debug
   const viewLocalStorageData = () => {
-    console.log('=== DEBUGGING LOCALSTORAGE ===');
+    console.log('=== DEBUGGING SYSTÈME DE FICHIERS ===');
     console.log('Artworks:', artworks);
-    console.log('Interests:', interests);
-    console.log('LocalStorage artworks:', localStorage.getItem('nart_artworks'));
-    console.log('LocalStorage interests:', localStorage.getItem('nart_interests'));
+    console.log('Interactions:', interactions);
+    console.log('Interests (messages):', interests);
+    console.log('Backup localStorage (fallback):', localStorage.getItem('nart_interactions_backup'));
     setShowStorageData(true);
   };
 
@@ -50,67 +247,73 @@ const Gallery = ({ isAdmin, interests, setInterests, artworks: propArtworks, set
     return matchesSearch;
   });
 
-  // Persistance artworks et synchronisation avec les props
-  useEffect(() => {
-    localStorage.setItem('nart_artworks', JSON.stringify(artworks));
-    if (setPropArtworks) {
-      setPropArtworks(artworks);
+  // Gestion des likes avec système de fichiers
+  const handleLike = async (artworkId) => {
+    // Mettre à jour les interactions localement
+    const newInteractions = { ...interactions };
+    if (!newInteractions[artworkId]) {
+      newInteractions[artworkId] = { likes: 0, messages: [] };
     }
-  }, [artworks, setPropArtworks]);
-
-  // Synchroniser avec les props si elles changent
-  useEffect(() => {
-    if (propArtworks && propArtworks.length > 0) {
-      setArtworks(propArtworks);
-    }
-  }, [propArtworks]);
-
-  // Persistance interests
-  useEffect(() => {
-    localStorage.setItem('nart_interests', JSON.stringify(interests));
-  }, [interests]);
-
-  const handleAdd = e => {
-    e.preventDefault();
-    setArtworks([...artworks, { ...newArt, likes: 0, interested: 0 }]);
-    setNewArt({ title: '', image: '', description: '' });
+    newInteractions[artworkId].likes = (newInteractions[artworkId].likes || 0) + 1;
+    
+    // Mettre à jour l'état local
+    setInteractions(newInteractions);
+    
+    // Mettre à jour les œuvres pour refléter le nouveau nombre de likes
+    setArtworks(prevArtworks => 
+      prevArtworks.map(art => 
+        art.id === artworkId 
+          ? { ...art, likes: newInteractions[artworkId].likes }
+          : art
+      )
+    );
+    
+    // Sauvegarder les interactions
+    await saveInteractionsToConfig(newInteractions);
   };
 
-  const handleDelete = idx => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette œuvre ?')) {
-      setArtworks(artworks.filter((_, i) => i !== idx));
-    }
-  };
-
-  const handleLike = idx => {
-    setArtworks(arts => arts.map((a, i) => i === idx ? { ...a, likes: a.likes + 1 } : a));
-  };
-
-  const handleInterest = (artIdx, name, email, message) => {
-    const newInterest = {
-      artIdx,
-      artTitle: artworks[artIdx].title,
+  // Gestion des messages d'intérêt avec système de fichiers
+  const handleInterest = async (artworkId, name, email, message) => {
+    const artwork = artworks.find(art => art.id === artworkId);
+    const newMessage = {
       name,
       email,
       message,
       timestamp: Date.now()
     };
+    
+    // Mettre à jour les interactions localement
+    const newInteractions = { ...interactions };
+    if (!newInteractions[artworkId]) {
+      newInteractions[artworkId] = { likes: 0, messages: [] };
+    }
+    newInteractions[artworkId].messages.push(newMessage);
+    
+    // Mettre à jour l'état local des interactions
+    setInteractions(newInteractions);
+    
+    // Mettre à jour les interests pour la liste des messages
+    const newInterest = {
+      ...newMessage,
+      artworkId,
+      artTitle: artwork.title
+    };
     setInterests([...interests, newInterest]);
-    setArtworks(arts => arts.map((a, i) => i === artIdx ? { ...a, interested: a.interested + 1 } : a));
+    
+    // Mettre à jour les œuvres pour refléter le nouveau nombre d'intéressés
+    setArtworks(prevArtworks => 
+      prevArtworks.map(art => 
+        art.id === artworkId 
+          ? { ...art, interested: newInteractions[artworkId].messages.length }
+          : art
+      )
+    );
+    
+    // Sauvegarder les interactions
+    await saveInteractionsToConfig(newInteractions);
+    
     setShowFormIdx(null);
     setInterestForm({ name: '', email: '', message: '' });
-  };
-
-  const handleEdit = idx => {
-    setEditIdx(idx);
-    setEditArt({ ...artworks[idx] });
-  };
-
-  const handleEditSubmit = e => {
-    e.preventDefault();
-    setArtworks(arts => arts.map((a, i) => i === editIdx ? { ...a, ...editArt } : a));
-    setEditIdx(null);
-    setEditArt({ title: '', image: '', description: '' });
   };
 
   return (
@@ -161,9 +364,21 @@ const Gallery = ({ isAdmin, interests, setInterests, artworks: propArtworks, set
           filter: 'blur(30px)',
           zIndex: 1
         }}></div>
+
+        {/* Indicateur de chargement */}
+        {loading && (
+          <div style={{
+            textAlign: 'center',
+            padding: '4rem',
+            fontSize: '1.2rem',
+            color: '#a13c2f'
+          }}>
+            🎨 Chargement de la galerie...
+          </div>
+        )}
         
         {/* Barre de recherche élégante pour visiteurs */}
-        {!isAdmin && (
+        {!loading && !isAdmin && (
           <div style={{
             marginBottom: '4rem', 
             textAlign: 'center',
@@ -256,8 +471,8 @@ const Gallery = ({ isAdmin, interests, setInterests, artworks: propArtworks, set
           </div>
         )}
 
-        {/* Interface admin moderne */}
-        {isAdmin && (
+        {/* Interface admin simplifiée - uniquement pour voir les messages */}
+        {!loading && isAdmin && (
           <div style={{
             marginBottom: '4rem', 
             textAlign: 'center'
@@ -280,146 +495,60 @@ const Gallery = ({ isAdmin, interests, setInterests, artworks: propArtworks, set
                 marginBottom: '2rem',
                 letterSpacing: '0.05em'
               }}>
-                🔧 Gestion des 
-                <span style={{
-                  fontWeight: '700',
-                  background: 'linear-gradient(135deg, #a13c2f 0%, #8b2f23 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text'
-                }}> œuvres</span>
+                🔧 Administration
               </h2>
               
-              <form onSubmit={handleAdd} style={{marginBottom: '2rem'}}>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                  gap: '1rem',
-                  marginBottom: '1.5rem'
-                }}>
-                  <input
-                    type="text"
-                    placeholder="✨ Titre de l'œuvre"
-                    value={newArt.title}
-                    onChange={e => setNewArt({ ...newArt, title: e.target.value })}
-                    required
-                    style={{
-                      padding: '1rem',
-                      borderRadius: '15px',
-                      border: '2px solid rgba(161, 60, 47, 0.2)',
-                      fontSize: '1rem',
-                      fontFamily: "'Roboto', sans-serif",
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      transition: 'all 0.3s ease'
-                    }}
-                  />
-                  <input
-                    type="text"
-                    placeholder="🖼️ URL de l'image"
-                    value={newArt.image}
-                    onChange={e => setNewArt({ ...newArt, image: e.target.value })}
-                    required
-                    style={{
-                      padding: '1rem',
-                      borderRadius: '15px',
-                      border: '2px solid rgba(161, 60, 47, 0.2)',
-                      fontSize: '1rem',
-                      fontFamily: "'Roboto', sans-serif",
-                      background: 'rgba(255, 255, 255, 0.8)',
-                      transition: 'all 0.3s ease'
-                    }}
-                  />
-                </div>
-                <input
-                  type="text"
-                  placeholder="📝 Description (optionnelle)"
-                  value={newArt.description}
-                  onChange={e => setNewArt({ ...newArt, description: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '1rem',
-                    borderRadius: '15px',
-                    border: '2px solid rgba(161, 60, 47, 0.2)',
-                    fontSize: '1rem',
-                    fontFamily: "'Roboto', sans-serif",
-                    background: 'rgba(255, 255, 255, 0.8)',
-                    marginBottom: '2rem',
-                    transition: 'all 0.3s ease'
-                  }}
-                />
-                
-                <button 
-                  type="submit" 
-                  style={{
-                    padding: '1rem 2.5rem',
-                    borderRadius: '25px',
-                    background: 'linear-gradient(135deg, #a13c2f 0%, #8b2f23 100%)',
-                    color: '#fff',
-                    border: 'none',
-                    fontWeight: '600',
-                    fontSize: '1.1rem',
-                    fontFamily: "'Roboto', sans-serif",
-                    cursor: 'pointer',
-                    boxShadow: '0 8px 25px rgba(161, 60, 47, 0.3)',
-                    transition: 'all 0.3s ease',
-                    marginRight: '1rem'
-                  }}
-                  onMouseOver={(e) => {
-                    e.target.style.transform = 'translateY(-3px)';
-                    e.target.style.boxShadow = '0 12px 35px rgba(161, 60, 47, 0.4)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = '0 8px 25px rgba(161, 60, 47, 0.3)';
-                  }}
-                >
-                  ✨ Ajouter l'œuvre
-                </button>
-                
-                <button 
-                  type="button"
-                  onClick={viewLocalStorageData} 
-                  style={{
-                    padding: '1rem 2rem',
-                    borderRadius: '25px',
-                    background: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
-                    color: '#fff',
-                    border: 'none',
-                    fontWeight: '600',
-                    fontSize: '1rem',
-                    fontFamily: "'Roboto', sans-serif",
-                    cursor: 'pointer',
-                    boxShadow: '0 8px 25px rgba(44, 62, 80, 0.3)',
-                    transition: 'all 0.3s ease'
-                  }}
-                  onMouseOver={(e) => {
-                    e.target.style.transform = 'translateY(-3px)';
-                    e.target.style.boxShadow = '0 12px 35px rgba(44, 62, 80, 0.4)';
-                  }}
-                  onMouseOut={(e) => {
-                    e.target.style.transform = 'translateY(0)';
-                    e.target.style.boxShadow = '0 8px 25px rgba(44, 62, 80, 0.3)';
-                  }}
-                >
-                  📊 Données
-                </button>
-              </form>
+              <p style={{
+                color: '#5a6c7d',
+                fontSize: '1.1rem',
+                marginBottom: '2rem',
+                fontFamily: "'Roboto', sans-serif"
+              }}>
+                Les œuvres sont maintenant gérées via le fichier <code>/public/artworks/config.yaml</code>
+              </p>
+              
+              <button 
+                type="button"
+                onClick={viewLocalStorageData} 
+                style={{
+                  padding: '1rem 2rem',
+                  borderRadius: '25px',
+                  background: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
+                  color: '#fff',
+                  border: 'none',
+                  fontWeight: '600',
+                  fontSize: '1rem',
+                  fontFamily: "'Roboto', sans-serif",
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 25px rgba(44, 62, 80, 0.3)',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseOver={(e) => {
+                  e.target.style.transform = 'translateY(-3px)';
+                  e.target.style.boxShadow = '0 12px 35px rgba(44, 62, 80, 0.4)';
+                }}
+                onMouseOut={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 8px 25px rgba(44, 62, 80, 0.3)';
+                }}
+              >
+                📊 Voir les données
+              </button>
             </div>
           </div>
         )}
-        
         {/* Grille d'œuvres modernisée */}
+        {!loading && (
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
           gap: '2.5rem',
           padding: '0 1rem'
         }}>
-          {filteredArtworks.map((art, idx) => {
-            const realIdx = artworks.findIndex(a => a === art);
+          {filteredArtworks.map((art) => {
             return (
               <div 
-                key={realIdx}
+                key={art.id}
                 style={{
                   background: 'rgba(255, 255, 255, 0.9)',
                   borderRadius: '25px',
@@ -462,106 +591,55 @@ const Gallery = ({ isAdmin, interests, setInterests, artworks: propArtworks, set
                     }}
                   />
                   
-                  {/* Badge corner pour admin */}
-                  {isAdmin && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '1rem',
-                      right: '1rem',
-                      background: 'rgba(161, 60, 47, 0.9)',
-                      color: 'white',
-                      padding: '0.5rem 1rem',
-                      borderRadius: '15px',
-                      fontSize: '0.8rem',
-                      fontWeight: '600',
-                      backdropFilter: 'blur(10px)'
-                    }}>
-                      ❤️ {art.likes} | 👥 {art.interested}
-                    </div>
-                  )}
+                  {/* Badge corner avec stats */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '1rem',
+                    right: '1rem',
+                    background: 'rgba(161, 60, 47, 0.9)',
+                    color: 'white',
+                    padding: '0.5rem 1rem',
+                    borderRadius: '15px',
+                    fontSize: '0.8rem',
+                    fontWeight: '600',
+                    backdropFilter: 'blur(10px)'
+                  }}>
+                    ❤️ {art.likes} | 👥 {art.interested}
+                  </div>
                 </div>
                 
                 <div style={{padding: '2rem'}}>
-                  {editIdx === realIdx ? (
-                    <form onSubmit={handleEditSubmit} style={{marginBottom: '1rem'}}>
-                      <input 
-                        type="text" 
-                        value={editArt.title} 
-                        onChange={e => setEditArt({ ...editArt, title: e.target.value })} 
-                        required 
-                        style={{
-                          width: '100%',
-                          marginBottom: '1rem',
-                          padding: '0.8rem',
-                          borderRadius: '12px',
-                          border: '2px solid rgba(161, 60, 47, 0.2)',
-                          fontSize: '1rem',
-                          fontFamily: "'Roboto', sans-serif"
-                        }} 
-                        placeholder="Titre"
-                      />
-                      <input 
-                        type="text" 
-                        value={editArt.image} 
-                        onChange={e => setEditArt({ ...editArt, image: e.target.value })} 
-                        required 
-                        style={{
-                          width: '100%',
-                          marginBottom: '1rem',
-                          padding: '0.8rem',
-                          borderRadius: '12px',
-                          border: '2px solid rgba(161, 60, 47, 0.2)',
-                          fontSize: '1rem',
-                          fontFamily: "'Roboto', sans-serif"
-                        }} 
-                        placeholder="URL de l'image"
-                      />
-                      <input 
-                        type="text" 
-                        value={editArt.description} 
-                        onChange={e => setEditArt({ ...editArt, description: e.target.value })} 
-                        style={{
-                          width: '100%',
-                          marginBottom: '1.5rem',
-                          padding: '0.8rem',
-                          borderRadius: '12px',
-                          border: '2px solid rgba(161, 60, 47, 0.2)',
-                          fontSize: '1rem',
-                          fontFamily: "'Roboto', sans-serif"
-                        }} 
-                        placeholder="Description"
-                      />
-                      
-                      <button 
-                        type="submit" 
-                        style={{
-                          padding: '0.8rem 1.5rem',
-                          borderRadius: '15px',
-                          background: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
-                          color: '#fff',
-                          border: 'none',
-                          fontWeight: '600',
-                          fontSize: '1rem',
-                          cursor: 'pointer',
-                          transition: 'all 0.3s ease'
-                        }}
-                      >
-                        ✅ Valider
-                      </button>
-                    </form>
-                  ) : (
-                    <>
-                      <h3 style={{
-                        fontSize: '1.4rem',
-                        fontFamily: "'Playfair Display', serif",
-                        fontWeight: '600',
-                        color: '#2c3e50',
-                        marginBottom: '1.5rem',
-                        lineHeight: '1.3'
-                      }}>
-                        {art.title}
-                      </h3>
-                    </>
+                  <h3 style={{
+                    fontSize: '1.4rem',
+                    fontFamily: "'Playfair Display', serif",
+                    fontWeight: '600',
+                    color: '#2c3e50',
+                    marginBottom: '0.5rem',
+                    lineHeight: '1.3'
+                  }}>
+                    {art.title}
+                  </h3>
+                  
+                  <p style={{
+                    fontSize: '0.9rem',
+                    color: '#a13c2f',
+                    fontWeight: '500',
+                    marginBottom: '1rem',
+                    fontFamily: "'Roboto', sans-serif"
+                  }}>
+                    📐 {art.dimensions}
+                  </p>
+                  
+                  {art.description && (
+                    <p style={{
+                      fontSize: '1rem',
+                      color: '#5a6c7d',
+                      lineHeight: '1.5',
+                      marginBottom: '1.5rem',
+                      fontFamily: "'Roboto', sans-serif"
+                    }}>
+                      {art.description}
+                    </p>
                   )}
                   
                   <div style={{
@@ -575,7 +653,7 @@ const Gallery = ({ isAdmin, interests, setInterests, artworks: propArtworks, set
                     {!isAdmin && (
                       <>
                         <button 
-                          onClick={() => handleLike(realIdx)} 
+                          onClick={() => handleLike(art.id)} 
                           style={{
                             padding: '0.7rem 1.2rem',
                             borderRadius: '20px',
@@ -597,11 +675,11 @@ const Gallery = ({ isAdmin, interests, setInterests, artworks: propArtworks, set
                             e.target.style.boxShadow = '0 4px 15px rgba(161, 60, 47, 0.3)';
                           }}
                         >
-                          ❤️ {art.likes}
+                          ❤️ J'adore ({art.likes})
                         </button>
                         
                         <button 
-                          onClick={() => navigate(`/artwork/${realIdx}`)} 
+                          onClick={() => navigate(`/artwork/${art.id}`)} 
                           style={{
                             padding: '0.7rem 1.2rem',
                             borderRadius: '20px',
@@ -627,50 +705,10 @@ const Gallery = ({ isAdmin, interests, setInterests, artworks: propArtworks, set
                         </button>
                       </>
                     )}
-                    
-                    {isAdmin && editIdx !== realIdx && (
-                      <>
-                        <button 
-                          onClick={() => handleEdit(realIdx)} 
-                          style={{
-                            padding: '0.7rem 1.2rem',
-                            borderRadius: '20px',
-                            background: 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
-                            color: '#fff',
-                            border: 'none',
-                            fontWeight: '600',
-                            fontSize: '0.9rem',
-                            cursor: 'pointer',
-                            transition: 'all 0.3s ease',
-                            boxShadow: '0 4px 15px rgba(44, 62, 80, 0.3)'
-                          }}
-                        >
-                          ✏️ Modifier
-                        </button>
-                        
-                        <button 
-                          onClick={() => handleDelete(realIdx)} 
-                          style={{
-                            padding: '0.7rem 1.2rem',
-                            borderRadius: '20px',
-                            background: 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)',
-                            color: '#fff',
-                            border: 'none',
-                            fontWeight: '600',
-                            fontSize: '0.9rem',
-                            cursor: 'pointer',
-                            transition: 'all 0.3s ease',
-                            boxShadow: '0 4px 15px rgba(231, 76, 60, 0.3)'
-                          }}
-                        >
-                          🗑️ Supprimer
-                        </button>
-                      </>
-                    )}
                   </div>
                   
                   {/* Messages d'intérêt pour admin */}
-                  {isAdmin && interests.filter(i => i.artIdx === realIdx).length > 0 && (
+                  {isAdmin && interests.filter(i => i.artworkId === art.id).length > 0 && (
                     <div style={{
                       marginTop: '1.5rem',
                       background: 'rgba(161, 60, 47, 0.05)',
@@ -686,7 +724,7 @@ const Gallery = ({ isAdmin, interests, setInterests, artworks: propArtworks, set
                       }}>
                         💌 Messages reçus :
                       </h4>
-                      {interests.filter(i => i.artIdx === realIdx).map((i, k) => (
+                      {interests.filter(i => i.artworkId === art.id).map((i, k) => (
                         <div key={k} style={{
                           marginBottom: '1rem',
                           padding: '1rem',
@@ -706,6 +744,7 @@ const Gallery = ({ isAdmin, interests, setInterests, artworks: propArtworks, set
             );
           })}
         </div>
+        )}
 
         {/* Modal pour affichage image en grand */}
         {selectedImageModal && (
@@ -914,10 +953,10 @@ const Gallery = ({ isAdmin, interests, setInterests, artworks: propArtworks, set
                 </div>
                 
                 {/* Formulaire d'intérêt */}
-                {showFormIdx === artworks.findIndex(a => a === selectedArtwork) ? (
+                {showFormIdx === selectedArtwork.id ? (
                   <form onSubmit={(e) => {
                     e.preventDefault();
-                    handleInterest(artworks.findIndex(a => a === selectedArtwork), interestForm.name, interestForm.email, interestForm.message);
+                    handleInterest(selectedArtwork.id, interestForm.name, interestForm.email, interestForm.message);
                   }} style={{
                     background: 'rgba(161, 60, 47, 0.05)',
                     padding: '2rem',
@@ -1015,7 +1054,7 @@ const Gallery = ({ isAdmin, interests, setInterests, artworks: propArtworks, set
                     marginTop: '1rem'
                   }}>
                     <button 
-                      onClick={() => setShowFormIdx(artworks.findIndex(a => a === selectedArtwork))}
+                      onClick={() => setShowFormIdx(selectedArtwork.id)}
                       style={{
                         padding: '1rem 2rem',
                         borderRadius: '25px',

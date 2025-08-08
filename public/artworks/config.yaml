@@ -1,0 +1,44 @@
+artworks:
+  - id: "abstrait"
+    title: "Abstraction Moderne"
+    description: "Une œuvre abstraite exprimant les émotions à travers les formes et les couleurs."
+    dimensions: "50x70 cm"
+    image: "abstrait.jpg"
+    
+  - id: "bateau"
+    title: "Navigation"
+    description: "Une peinture maritime capturant l'essence de la navigation et des horizons infinis."
+    dimensions: "60x80 cm"
+    image: "bateau.jpg"
+    
+  - id: "beach"
+    title: "Plage Sereine"
+    description: "Un paysage côtier paisible évoquant la tranquillité des bords de mer."
+    dimensions: "50x70 cm"
+    image: "beach.jpg"
+    
+  - id: "boujie"
+    title: "Élégance"
+    description: "Une œuvre sophistiquée reflétant le raffinement et l'élégance artistique."
+    dimensions: "40x60 cm"
+    image: "boujie.jpg"
+    
+  - id: "collection"
+    title: "Collection Privée"
+    description: "Une pièce unique faisant partie d'une collection artistique personnelle."
+    dimensions: "55x75 cm"
+    image: "collection.jpg"
+    
+  - id: "oiseaux"
+    title: "Envol"
+    description: "Représentation artistique des oiseaux symbolisant la liberté et l'évasion."
+    dimensions: "45x65 cm"
+    image: "oiseaux.jpg"
+    
+  - id: "vase"
+    title: "Nature Morte"
+    description: "Étude contemplative d'objets du quotidien transformés en art."
+    dimensions: "40x50 cm"
+    image: "vase.jpg"
+    
+  

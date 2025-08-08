@@ -5,9 +5,10 @@ import Gallery from './components/Gallery';
 import ArtworkDetail from './components/ArtworkDetail';
 import ArtworkImage from './components/ArtworkImage';
 import About from './components/About';
+import AdminPage from './components/AdminPage';
 
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useSearchParams } from 'react-router-dom';
 
 // Import des polices Google Fonts
 const fontLink = document.createElement('link');
@@ -27,23 +28,22 @@ function App() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  // Charger les œuvres d'art depuis localStorage
+  // Détecter le mode admin depuis l'URL
   useEffect(() => {
-    const savedArtworks = localStorage.getItem('nart_artworks');
-    if (savedArtworks) {
-      setArtworks(JSON.parse(savedArtworks));
-    }
+    const urlParams = new URLSearchParams(window.location.search);
+    const adminMode = urlParams.get('mode') === 'admin';
+    setIsAdmin(adminMode);
   }, []);
 
   // Calculer le nombre de messages non lus
   const unreadCount = interests.filter(interest => 
-    !readMessages.includes(interest.artIdx + '_' + interest.name + '_' + interest.email)
+    !readMessages.includes(interest.artworkId + '_' + interest.name + '_' + interest.email)
   ).length;
 
   // Marquer tous les messages comme lus quand on ouvre la modal
   const handleShowMessages = () => {
     const newReadMessages = interests.map(interest => 
-      interest.artIdx + '_' + interest.name + '_' + interest.email
+      interest.artworkId + '_' + interest.name + '_' + interest.email
     );
     setReadMessages(newReadMessages);
     localStorage.setItem('nart_read_messages', JSON.stringify(newReadMessages));
@@ -197,36 +197,6 @@ function App() {
                   </div>
                 </div>
 
-                <div style={{ textAlign: 'center', margin: '4rem 0' }}>
-                  <button
-                    onClick={() => setIsAdmin((prev) => !prev)}
-                    style={{
-                      padding: '1rem 3rem',
-                      borderRadius: '50px',
-                      background: isAdmin ? 'linear-gradient(135deg, #a13c2f 0%, #8b2f23 100%)' : 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)',
-                      color: '#fff',
-                      fontWeight: '500',
-                      fontSize: '1.1rem',
-                      border: 'none',
-                      cursor: 'pointer',
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
-                      transition: 'all 0.3s ease',
-                      fontFamily: "'Roboto', sans-serif",
-                      letterSpacing: '0.05em'
-                    }}
-                    onMouseOver={(e) => {
-                      e.target.style.transform = 'translateY(-2px)';
-                      e.target.style.boxShadow = '0 12px 40px rgba(0,0,0,0.2)';
-                    }}
-                    onMouseOut={(e) => {
-                      e.target.style.transform = 'translateY(0)';
-                      e.target.style.boxShadow = '0 8px 32px rgba(0,0,0,0.15)';
-                    }}
-                  >
-                    {isAdmin ? '👤 Passer en mode visiteur' : '🔧 Passer en mode admin'}
-                  </button>
-                </div>
-                
                 <Gallery 
                   isAdmin={isAdmin} 
                   interests={interests} 
@@ -261,6 +231,11 @@ function App() {
           <Route 
             path="/about" 
             element={<About />} 
+          />
+          
+          <Route 
+            path="/admin" 
+            element={<AdminPage />} 
           />
         </Routes>
         
