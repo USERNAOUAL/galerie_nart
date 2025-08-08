@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import emailjs from '@emailjs/browser';
+import { EMAIL_CONFIG } from '../config/emailConfig';
 import "../styles/Gallery.css";
 
 // Fonction pour charger les interactions depuis le fichier YAML
@@ -188,6 +190,7 @@ const Gallery = () => {
   const [interestForm, setInterestForm] = useState({ name: '', email: '', message: '' });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedImageModal, setSelectedImageModal] = useState(null);
+  const [emailStatus, setEmailStatus] = useState(null); // 'sending', 'success', 'error'
 
   // Charger les œuvres et interactions au montage du composant
   useEffect(() => {
@@ -231,6 +234,33 @@ const Gallery = () => {
     return matchesSearch;
   });
 
+  // Fonction pour envoyer un email avec EmailJS
+  const sendEmail = async (artworkTitle, userName, userEmail, userMessage) => {
+    try {
+      const templateParams = {
+        to_name: 'Galerie NArt', // Votre nom
+        from_name: userName,
+        from_email: userEmail,
+        artwork_title: artworkTitle,
+        message: userMessage || 'Aucun message spécifique.',
+        reply_to: userEmail
+      };
+
+      const response = await emailjs.send(
+        EMAIL_CONFIG.SERVICE_ID,
+        EMAIL_CONFIG.TEMPLATE_ID,
+        templateParams,
+        EMAIL_CONFIG.PUBLIC_KEY
+      );
+
+      console.log('Email envoyé avec succès:', response);
+      return { success: true, response };
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi de l\'email:', error);
+      return { success: false, error };
+    }
+  };
+
   // Gestion des likes avec système de fichiers
   const handleLike = async (artworkId) => {
     // Mettre à jour les interactions localement
@@ -256,8 +286,10 @@ const Gallery = () => {
     await saveInteractionsToConfig(newInteractions);
   };
 
-  // Gestion des messages d'intérêt avec système de fichiers
+  // Gestion des messages d'intérêt avec système de fichiers et envoi d'email
   const handleInterest = async (artworkId, name, email, message) => {
+    setEmailStatus('sending');
+    
     const artwork = artworks.find(art => art.id === artworkId);
     const newMessage = {
       name,
@@ -266,42 +298,86 @@ const Gallery = () => {
       timestamp: Date.now()
     };
     
-    // Mettre à jour les interactions localement
-    const newInteractions = { ...interactions };
-    if (!newInteractions[artworkId]) {
-      newInteractions[artworkId] = { likes: 0, messages: [] };
+    try {
+      // Envoyer l'email d'abord
+      const emailResult = await sendEmail(artwork.title, name, email, message);
+      
+      if (!emailResult.success) {
+        setEmailStatus('error');
+        setTimeout(() => setEmailStatus(null), 5000);
+        return;
+      }
+
+      // Si l'email est envoyé avec succès, sauvegarder dans les interactions
+      const newInteractions = { ...interactions };
+      if (!newInteractions[artworkId]) {
+        newInteractions[artworkId] = { likes: 0, messages: [] };
+      }
+      newInteractions[artworkId].messages.push(newMessage);
+      
+      // Mettre à jour l'état local des interactions
+      setInteractions(newInteractions);
+      
+      // Mettre à jour les interests pour la liste des messages
+      const newInterest = {
+        ...newMessage,
+        artworkId,
+        artTitle: artwork.title
+      };
+      setInterests([...interests, newInterest]);
+      
+      // Mettre à jour les œuvres pour refléter le nouveau nombre d'intéressés
+      setArtworks(prevArtworks => 
+        prevArtworks.map(art => 
+          art.id === artworkId 
+            ? { ...art, interested: newInteractions[artworkId].messages.length }
+            : art
+        )
+      );
+      
+      // Sauvegarder les interactions
+      await saveInteractionsToConfig(newInteractions);
+      
+      setEmailStatus('success');
+      setShowFormIdx(null);
+      setInterestForm({ name: '', email: '', message: '' });
+      
+      // Réinitialiser le status après 5 secondes
+      setTimeout(() => setEmailStatus(null), 5000);
+      
+    } catch (error) {
+      console.error('Erreur lors du traitement de l\'intérêt:', error);
+      setEmailStatus('error');
+      setTimeout(() => setEmailStatus(null), 5000);
     }
-    newInteractions[artworkId].messages.push(newMessage);
-    
-    // Mettre à jour l'état local des interactions
-    setInteractions(newInteractions);
-    
-    // Mettre à jour les interests pour la liste des messages
-    const newInterest = {
-      ...newMessage,
-      artworkId,
-      artTitle: artwork.title
-    };
-    setInterests([...interests, newInterest]);
-    
-    // Mettre à jour les œuvres pour refléter le nouveau nombre d'intéressés
-    setArtworks(prevArtworks => 
-      prevArtworks.map(art => 
-        art.id === artworkId 
-          ? { ...art, interested: newInteractions[artworkId].messages.length }
-          : art
-      )
-    );
-    
-    // Sauvegarder les interactions
-    await saveInteractionsToConfig(newInteractions);
-    
-    setShowFormIdx(null);
-    setInterestForm({ name: '', email: '', message: '' });
   };
 
   return (
-    <section 
+    <>
+      {/* Styles pour les animations */}
+      <style>{`
+        @keyframes slideInRight {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes fadeOut {
+          from {
+            opacity: 1;
+          }
+          to {
+            opacity: 0;
+          }
+        }
+      `}</style>
+      
+      <section 
       id="gallery-section"
       className="gallery-container"
       style={{
@@ -324,6 +400,36 @@ const Gallery = () => {
         zIndex: 2
       }}>
         
+        {/* Notification d'envoi d'email */}
+        {emailStatus && (
+          <div style={{
+            position: 'fixed',
+            top: '2rem',
+            right: '2rem',
+            padding: '1rem 1.5rem',
+            borderRadius: '15px',
+            background: emailStatus === 'success' 
+              ? 'linear-gradient(135deg, #27ae60 0%, #2ecc71 100%)'
+              : emailStatus === 'error'
+              ? 'linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)'
+              : 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
+            color: 'white',
+            fontWeight: '600',
+            fontSize: '0.9rem',
+            zIndex: 10000,
+            boxShadow: '0 8px 25px rgba(0, 0, 0, 0.2)',
+            backdropFilter: 'blur(10px)',
+            animation: 'slideInRight 0.3s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            {emailStatus === 'success' && '✅ Email envoyé avec succès !'}
+            {emailStatus === 'error' && '❌ Erreur lors de l\'envoi de l\'email'}
+            {emailStatus === 'sending' && '📧 Envoi de l\'email en cours...'}
+          </div>
+        )}
+
         {/* Effet décoratif en arrière-plan */}
         <div style={{
           position: 'absolute',
@@ -618,18 +724,22 @@ const Gallery = () => {
                       }}>
                         <button 
                           type="submit" 
+                          disabled={emailStatus === 'sending'}
                           style={{
                             padding: '0.6rem 1.2rem',
                             borderRadius: '15px',
-                            background: 'linear-gradient(135deg, #a13c2f 0%, #8b2f23 100%)',
+                            background: emailStatus === 'sending' 
+                              ? 'linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%)'
+                              : 'linear-gradient(135deg, #a13c2f 0%, #8b2f23 100%)',
                             color: '#fff',
                             border: 'none',
                             fontWeight: '600',
-                            cursor: 'pointer',
-                            fontSize: '0.9rem'
+                            cursor: emailStatus === 'sending' ? 'not-allowed' : 'pointer',
+                            fontSize: '0.9rem',
+                            opacity: emailStatus === 'sending' ? 0.7 : 1
                           }}
                         >
-                          ✉️ Envoyer
+                          {emailStatus === 'sending' ? '📧 Envoi...' : '✉️ Envoyer'}
                         </button>
                         <button 
                           type="button" 
@@ -816,6 +926,7 @@ const Gallery = () => {
         )}
       </div>
     </section>
+    </>
   );
 };
 
