@@ -5,7 +5,6 @@ import Gallery from './components/Gallery';
 import ArtworkDetail from './components/ArtworkDetail';
 import ArtworkImage from './components/ArtworkImage';
 import About from './components/About';
-import AdminPage from './components/AdminPage';
 
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useSearchParams } from 'react-router-dom';
@@ -19,41 +18,14 @@ if (!document.head.querySelector(`link[href="${fontLink.href}"]`)) {
 }
 
 function App() {
-  const [isAdmin, setIsAdmin] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
   const [interests, setInterests] = useState([]);
   const [artworks, setArtworks] = useState([]);
-  const [readMessages, setReadMessages] = useState(() => {
-    const saved = localStorage.getItem('nart_read_messages');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  // Détecter le mode admin depuis l'URL
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const adminMode = urlParams.get('mode') === 'admin';
-    setIsAdmin(adminMode);
-  }, []);
-
-  // Calculer le nombre de messages non lus
-  const unreadCount = interests.filter(interest => 
-    !readMessages.includes(interest.artworkId + '_' + interest.name + '_' + interest.email)
-  ).length;
-
-  // Marquer tous les messages comme lus quand on ouvre la modal
-  const handleShowMessages = () => {
-    const newReadMessages = interests.map(interest => 
-      interest.artworkId + '_' + interest.name + '_' + interest.email
-    );
-    setReadMessages(newReadMessages);
-    localStorage.setItem('nart_read_messages', JSON.stringify(newReadMessages));
-    setShowMessages(true);
-  };
 
   return (
     <Router>
       <div>
-        <Menu isAdmin={isAdmin} onShowMessages={handleShowMessages} unreadCount={unreadCount} />
+        <Menu />
         
         <Routes>
           <Route 
@@ -198,7 +170,6 @@ function App() {
                 </div>
 
                 <Gallery 
-                  isAdmin={isAdmin} 
                   interests={interests} 
                   setInterests={setInterests}
                   artworks={artworks}
@@ -231,11 +202,6 @@ function App() {
           <Route 
             path="/about" 
             element={<About />} 
-          />
-          
-          <Route 
-            path="/admin" 
-            element={<AdminPage />} 
           />
         </Routes>
         
@@ -297,48 +263,6 @@ function App() {
             }
           }
         `}</style>
-
-        {/* Modal Messages admin */}
-        {isAdmin && showMessages && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            background: 'rgba(0,0,0,0.25)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999
-          }}>
-            <div style={{
-              background: '#fff',
-              padding: '2rem',
-              borderRadius: '1.5em',
-              boxShadow: '0 4px 32px #a13c2f33',
-              minWidth: '320px',
-              maxWidth: '90vw',
-              textAlign: 'center',
-              position: 'relative'
-            }}>
-              <h2 style={{marginBottom: '1.2rem', color: '#a13c2f'}}>Messages d'intérêt reçus</h2>
-              {interests.length === 0 ? (
-                <p style={{color: '#333'}}>Aucun message reçu pour le moment.</p>
-              ) : (
-                interests.map((i, k) => (
-                  <div key={k} style={{marginBottom: '1.2rem', textAlign: 'left', background: '#f8f6f2', padding: '1rem', borderRadius: '1em', color: '#2c2c2c', border: '1px solid #e0ddd6'}}>
-                    <strong style={{color: '#a13c2f'}}>Œuvre :</strong> <span style={{color: '#333'}}>{i.artTitle}</span><br/>
-                    <strong style={{color: '#a13c2f'}}>Nom :</strong> <span style={{color: '#333'}}>{i.name}</span><br/>
-                    <strong style={{color: '#a13c2f'}}>Email :</strong> <span style={{color: '#333'}}>{i.email}</span><br/>
-                    {i.message && (<><strong style={{color: '#a13c2f'}}>Message :</strong> <span style={{color: '#333'}}>{i.message}</span><br/></>)}
-                  </div>
-                ))
-              )}
-              <button type="button" onClick={() => setShowMessages(false)} style={{position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', fontSize: '1.5em', color: '#a13c2f', cursor: 'pointer'}}>&times;</button>
-            </div>
-          </div>
-        )}
       </div>
     </Router>
   );

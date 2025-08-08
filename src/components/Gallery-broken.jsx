@@ -571,6 +571,7 @@ const Gallery = () => {
                     justifyContent: 'center',
                     alignItems: 'center'
                   }}>
+                      <>
                         <button 
                           onClick={() => handleLike(art.id)} 
                           style={{
