@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
 import "../styles/Gallery.css";
 
 // Fonction pour charger les interactions depuis le fichier YAML
@@ -179,7 +178,6 @@ const loadArtworksFromConfig = async () => {
 };
 
 const Gallery = () => {
-  const navigate = useNavigate();
   
   // Charger les œuvres depuis le fichier de configuration
   const [artworks, setArtworks] = useState([]);
@@ -189,7 +187,6 @@ const Gallery = () => {
   const [showFormIdx, setShowFormIdx] = useState(null);
   const [interestForm, setInterestForm] = useState({ name: '', email: '', message: '' });
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedArtwork, setSelectedArtwork] = useState(null);
   const [selectedImageModal, setSelectedImageModal] = useState(null);
 
   // Charger les œuvres et interactions au montage du composant
@@ -535,21 +532,11 @@ const Gallery = () => {
                     fontFamily: "'Playfair Display', serif",
                     fontWeight: '600',
                     color: '#2c3e50',
-                    marginBottom: '0.5rem',
+                    marginBottom: '1rem',
                     lineHeight: '1.3'
                   }}>
                     {art.title}
                   </h3>
-                  
-                  <p style={{
-                    fontSize: '0.9rem',
-                    color: '#a13c2f',
-                    fontWeight: '500',
-                    marginBottom: '1rem',
-                    fontFamily: "'Roboto', sans-serif"
-                  }}>
-                    📐 {art.dimensions}
-                  </p>
                   
                   {art.description && (
                     <p style={{
@@ -562,6 +549,107 @@ const Gallery = () => {
                       {art.description}
                     </p>
                   )}
+                  
+                  {/* Formulaire d'intérêt intégré dans la carte */}
+                  {showFormIdx === art.id ? (
+                    <form onSubmit={(e) => {
+                      e.preventDefault();
+                      handleInterest(art.id, interestForm.name, interestForm.email, interestForm.message);
+                    }} style={{
+                      background: 'rgba(161, 60, 47, 0.05)',
+                      padding: '1.5rem',
+                      borderRadius: '15px',
+                      marginBottom: '1.5rem'
+                    }}>
+                      <h4 style={{color: '#a13c2f', marginBottom: '1rem', fontSize: '1.1rem'}}>💌 Montrer votre intérêt</h4>
+                      <input
+                        type="text"
+                        placeholder="Votre nom"
+                        value={interestForm.name}
+                        onChange={e => setInterestForm({...interestForm, name: e.target.value})}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '0.7rem',
+                          marginBottom: '0.8rem',
+                          borderRadius: '10px',
+                          border: '2px solid rgba(161, 60, 47, 0.2)',
+                          fontSize: '0.9rem',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                      <input
+                        type="email"
+                        placeholder="Votre email"
+                        value={interestForm.email}
+                        onChange={e => setInterestForm({...interestForm, email: e.target.value})}
+                        required
+                        style={{
+                          width: '100%',
+                          padding: '0.7rem',
+                          marginBottom: '0.8rem',
+                          borderRadius: '10px',
+                          border: '2px solid rgba(161, 60, 47, 0.2)',
+                          fontSize: '0.9rem',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                      <textarea
+                        placeholder="Message (optionnel)"
+                        value={interestForm.message}
+                        onChange={e => setInterestForm({...interestForm, message: e.target.value})}
+                        style={{
+                          width: '100%',
+                          padding: '0.7rem',
+                          marginBottom: '1rem',
+                          borderRadius: '10px',
+                          border: '2px solid rgba(161, 60, 47, 0.2)',
+                          fontSize: '0.9rem',
+                          minHeight: '80px',
+                          resize: 'vertical',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                      <div style={{
+                        display: 'flex', 
+                        gap: '0.8rem',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                      }}>
+                        <button 
+                          type="submit" 
+                          style={{
+                            padding: '0.6rem 1.2rem',
+                            borderRadius: '15px',
+                            background: 'linear-gradient(135deg, #a13c2f 0%, #8b2f23 100%)',
+                            color: '#fff',
+                            border: 'none',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem'
+                          }}
+                        >
+                          ✉️ Envoyer
+                        </button>
+                        <button 
+                          type="button" 
+                          onClick={() => setShowFormIdx(null)}
+                          style={{
+                            padding: '0.6rem 1.2rem',
+                            borderRadius: '15px',
+                            background: '#ddd',
+                            color: '#333',
+                            border: 'none',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem'
+                          }}
+                        >
+                          Annuler
+                        </button>
+                      </div>
+                    </form>
+                  ) : null}
                   
                   <div style={{
                     display: 'flex',
@@ -598,7 +686,7 @@ const Gallery = () => {
                         </button>
                         
                         <button 
-                          onClick={() => navigate(`/artwork/${art.id}`)} 
+                          onClick={() => setShowFormIdx(art.id)}
                           style={{
                             padding: '0.7rem 1.2rem',
                             borderRadius: '20px',
@@ -620,7 +708,7 @@ const Gallery = () => {
                             e.target.style.boxShadow = '0 4px 15px rgba(44, 62, 80, 0.3)';
                           }}
                         >
-                          👁️ Détails
+                          💌 Ça m'intéresse
                         </button>
                   </div>
                 </div>
@@ -723,240 +811,6 @@ const Gallery = () => {
               }}>
                 {selectedImageModal.title}
               </h3>
-            </div>
-          </div>
-        )}
-
-        {/* Modal pour voir les détails d'une œuvre */}
-        {selectedArtwork && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            background: 'rgba(0,0,0,0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            padding: '2rem'
-          }}>
-            <div style={{
-              background: '#fff',
-              borderRadius: '25px',
-              maxWidth: '800px',
-              maxHeight: '90vh',
-              overflow: 'auto',
-              position: 'relative',
-              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
-            }}>
-              <button 
-                onClick={() => setSelectedArtwork(null)} 
-                style={{
-                  position: 'absolute',
-                  top: '1.5rem',
-                  right: '1.5rem',
-                  background: 'rgba(161, 60, 47, 0.9)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: '40px',
-                  height: '40px',
-                  fontSize: '1.5rem',
-                  cursor: 'pointer',
-                  zIndex: 10,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                ×
-              </button>
-              
-              <img 
-                src={selectedArtwork.image} 
-                alt={selectedArtwork.title} 
-                style={{
-                  width: '100%',
-                  height: '400px',
-                  objectFit: 'cover',
-                  borderRadius: '25px 25px 0 0'
-                }}
-              />
-              
-              <div style={{padding: '2rem'}}>
-                <h2 style={{
-                  fontSize: '2rem',
-                  fontFamily: "'Playfair Display', serif",
-                  color: '#2c3e50',
-                  marginBottom: '1rem'
-                }}>
-                  {selectedArtwork.title}
-                </h2>
-                
-                {selectedArtwork.description && (
-                  <p style={{
-                    fontSize: '1.1rem',
-                    color: '#5a6c7d',
-                    lineHeight: '1.6',
-                    marginBottom: '2rem'
-                  }}>
-                    {selectedArtwork.description}
-                  </p>
-                )}
-                
-                <div style={{
-                  display: 'flex',
-                  gap: '1rem',
-                  marginBottom: '2rem'
-                }}>
-                  <div style={{
-                    background: 'rgba(161, 60, 47, 0.1)',
-                    padding: '1rem',
-                    borderRadius: '15px',
-                    textAlign: 'center'
-                  }}>
-                    <span style={{fontSize: '1.5rem'}}>❤️</span>
-                    <p style={{margin: '0.5rem 0 0', color: '#a13c2f', fontWeight: '600'}}>
-                      {selectedArtwork.likes} J'adore
-                    </p>
-                  </div>
-                  
-                  <div style={{
-                    background: 'rgba(161, 60, 47, 0.1)',
-                    padding: '1rem',
-                    borderRadius: '15px',
-                    textAlign: 'center'
-                  }}>
-                    <span style={{fontSize: '1.5rem'}}>👥</span>
-                    <p style={{margin: '0.5rem 0 0', color: '#a13c2f', fontWeight: '600'}}>
-                      {selectedArtwork.interested} Intéressés
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Formulaire d'intérêt */}
-                {showFormIdx === selectedArtwork.id ? (
-                  <form onSubmit={(e) => {
-                    e.preventDefault();
-                    handleInterest(selectedArtwork.id, interestForm.name, interestForm.email, interestForm.message);
-                  }} style={{
-                    background: 'rgba(161, 60, 47, 0.05)',
-                    padding: '2rem',
-                    borderRadius: '15px',
-                    marginTop: '1rem'
-                  }}>
-                    <h3 style={{color: '#a13c2f', marginBottom: '1rem'}}>💌 Montrer votre intérêt</h3>
-                    <input
-                      type="text"
-                      placeholder="Votre nom"
-                      value={interestForm.name}
-                      onChange={e => setInterestForm({...interestForm, name: e.target.value})}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '0.8rem',
-                        marginBottom: '1rem',
-                        borderRadius: '10px',
-                        border: '2px solid rgba(161, 60, 47, 0.2)',
-                        fontSize: '1rem'
-                      }}
-                    />
-                    <input
-                      type="email"
-                      placeholder="Votre email"
-                      value={interestForm.email}
-                      onChange={e => setInterestForm({...interestForm, email: e.target.value})}
-                      required
-                      style={{
-                        width: '100%',
-                        padding: '0.8rem',
-                        marginBottom: '1rem',
-                        borderRadius: '10px',
-                        border: '2px solid rgba(161, 60, 47, 0.2)',
-                        fontSize: '1rem'
-                      }}
-                    />
-                    <textarea
-                      placeholder="Message (optionnel)"
-                      value={interestForm.message}
-                      onChange={e => setInterestForm({...interestForm, message: e.target.value})}
-                      style={{
-                        width: '100%',
-                        padding: '0.8rem',
-                        marginBottom: '1rem',
-                        borderRadius: '10px',
-                        border: '2px solid rgba(161, 60, 47, 0.2)',
-                        fontSize: '1rem',
-                        minHeight: '100px',
-                        resize: 'vertical'
-                      }}
-                    />
-                    <div style={{
-                      display: 'flex', 
-                      gap: '1rem',
-                      justifyContent: 'center',
-                      alignItems: 'center'
-                    }}>
-                      <button 
-                        type="submit" 
-                        style={{
-                          padding: '0.8rem 1.5rem',
-                          borderRadius: '20px',
-                          background: 'linear-gradient(135deg, #a13c2f 0%, #8b2f23 100%)',
-                          color: '#fff',
-                          border: 'none',
-                          fontWeight: '600',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        ✉️ Envoyer
-                      </button>
-                      <button 
-                        type="button" 
-                        onClick={() => setShowFormIdx(null)}
-                        style={{
-                          padding: '0.8rem 1.5rem',
-                          borderRadius: '20px',
-                          background: '#ddd',
-                          color: '#333',
-                          border: 'none',
-                          fontWeight: '600',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        Annuler
-                      </button>
-                    </div>
-                  </form>
-                ) : (
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginTop: '1rem'
-                  }}>
-                    <button 
-                      onClick={() => setShowFormIdx(selectedArtwork.id)}
-                      style={{
-                        padding: '1rem 2rem',
-                        borderRadius: '25px',
-                        background: 'linear-gradient(135deg, #a13c2f 0%, #8b2f23 100%)',
-                        color: '#fff',
-                        border: 'none',
-                        fontWeight: '600',
-                        fontSize: '1.1rem',
-                        cursor: 'pointer',
-                        boxShadow: '0 8px 25px rgba(161, 60, 47, 0.3)',
-                        transition: 'all 0.3s ease'
-                      }}
-                    >
-                      💌 Ça m'intéresse !
-                    </button>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
         )}
