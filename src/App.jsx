@@ -23,8 +23,11 @@ function App() {
   const [interests, setInterests] = useState([]);
   const [artworks, setArtworks] = useState([]);
 
+  // Get basename from Vite config for consistency
+  const basename = import.meta.env.BASE_URL;
+
   return (
-    <Router basename="/galerie_nart">
+    <Router basename={basename}>
       <div>
         <Menu />
         
