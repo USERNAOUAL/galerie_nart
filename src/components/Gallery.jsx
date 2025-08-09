@@ -681,7 +681,9 @@ const Gallery = () => {
                           borderRadius: '10px',
                           border: '2px solid rgba(161, 60, 47, 0.2)',
                           fontSize: '0.9rem',
-                          boxSizing: 'border-box'
+                          boxSizing: 'border-box',
+                          color: '#2c3e50',
+                          background: 'rgba(255, 255, 255, 0.9)'
                         }}
                       />
                       <input
@@ -697,7 +699,9 @@ const Gallery = () => {
                           borderRadius: '10px',
                           border: '2px solid rgba(161, 60, 47, 0.2)',
                           fontSize: '0.9rem',
-                          boxSizing: 'border-box'
+                          boxSizing: 'border-box',
+                          color: '#2c3e50',
+                          background: 'rgba(255, 255, 255, 0.9)'
                         }}
                       />
                       <textarea
@@ -713,7 +717,9 @@ const Gallery = () => {
                           fontSize: '0.9rem',
                           minHeight: '80px',
                           resize: 'vertical',
-                          boxSizing: 'border-box'
+                          boxSizing: 'border-box',
+                          color: '#2c3e50',
+                          background: 'rgba(255, 255, 255, 0.9)'
                         }}
                       />
                       <div style={{
