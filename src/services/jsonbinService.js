@@ -1,7 +1,14 @@
-// Service pour gérer les interactions avec localStorage (solution simple et fiable)
-// Alternative à JSONBin.io qui nécessite maintenant une clé API
+// Service pour gérer les interactions avec JSONBin.io (solution cloud partagée)
+// Permet de partager les statistiques entre tous les visiteurs
 
-console.log('🔧 Chargement du service jsonbinService.js');
+console.log('🔧 Chargement du service jsonbinService.js - Mode JSONBin.io');
+
+// Configuration JSONBin.io
+const JSONBIN_CONFIG = {
+  binId: '6897d1b8d0ea881f405573af',
+  apiKey: '$2a$10$kkMIoGQGiWPP5y3iL22AEu0o/3cpE.I8tdIFdUj9Ur5xMqkyqJU5m',
+  baseUrl: 'https://api.jsonbin.io/v3'
+};
 
 // Valeurs par défaut si aucune donnée n'est disponible
 const getDefaultStats = () => ({
@@ -14,51 +21,61 @@ const getDefaultStats = () => ({
   collection: { likes: 0, interested: 0 }
 });
 
-// Clé pour le stockage local
-const STORAGE_KEY = 'nart_artwork_stats';
-
-// Fonction pour charger les données depuis localStorage
+// Fonction pour charger les données depuis JSONBin.io
 const loadInteractionsFromJSONBin = async () => {
   try {
-    console.log('📦 Chargement des données depuis localStorage...');
+    console.log('📦 Chargement des données depuis JSONBin.io...');
     
-    const savedData = localStorage.getItem(STORAGE_KEY);
-    
-    if (savedData) {
-      const parsedData = JSON.parse(savedData);
-      console.log('✅ Données trouvées dans localStorage:', parsedData);
-      return parsedData;
-    } else {
-      console.log('📝 Aucune donnée trouvée, initialisation avec valeurs par défaut');
-      const defaultStats = getDefaultStats();
-      
-      // Sauvegarder les valeurs par défaut
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultStats));
-      localStorage.setItem(STORAGE_KEY + '_created', Date.now().toString());
-      
-      return defaultStats;
+    const response = await fetch(`${JSONBIN_CONFIG.baseUrl}/b/${JSONBIN_CONFIG.binId}/latest`, {
+      method: 'GET',
+      headers: {
+        'X-Master-Key': JSONBIN_CONFIG.apiKey,
+        'X-Bin-Meta': 'false'
+      }
+    });
+
+    if (!response.ok) {
+      console.error('❌ Erreur HTTP:', response.status, response.statusText);
+      return getDefaultStats();
     }
+
+    const data = await response.json();
+    console.log('✅ Données chargées depuis JSONBin.io:', data);
+    return data;
+    
   } catch (error) {
-    console.error('❌ Erreur chargement localStorage:', error);
+    console.error('❌ Erreur chargement JSONBin.io:', error);
+    console.log('🔄 Utilisation des valeurs par défaut');
     return getDefaultStats();
   }
 };
 
-// Fonction pour sauvegarder les données vers localStorage
+// Fonction pour sauvegarder les données vers JSONBin.io
 const saveInteractionsToJSONBin = async (artworkStats) => {
   try {
-    console.log('💾 Sauvegarde dans localStorage...');
+    console.log('💾 Sauvegarde vers JSONBin.io...');
     console.log('📊 Données à sauvegarder:', artworkStats);
     
-    // Sauvegarder les statistiques
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(artworkStats));
-    localStorage.setItem(STORAGE_KEY + '_updated', Date.now().toString());
-    
-    console.log('✅ Données sauvegardées avec succès dans localStorage!');
+    const response = await fetch(`${JSONBIN_CONFIG.baseUrl}/b/${JSONBIN_CONFIG.binId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_CONFIG.apiKey
+      },
+      body: JSON.stringify(artworkStats)
+    });
+
+    if (!response.ok) {
+      console.error('❌ Erreur HTTP sauvegarde:', response.status, response.statusText);
+      return false;
+    }
+
+    const result = await response.json();
+    console.log('✅ Données sauvegardées avec succès sur JSONBin.io!', result.metadata);
     
     return true;
   } catch (error) {
-    console.error('❌ Erreur sauvegarde localStorage:', error);
+    console.error('❌ Erreur sauvegarde JSONBin.io:', error);
     return false;
   }
 };
@@ -99,21 +116,34 @@ const incrementInterested = async (artworkId, currentStats, message = null) => {
   return newStats;
 };
 
-// Fonction de debug pour vérifier l'état
-const debugJSONBinState = () => {
-  console.log('=== ÉTAT STOCKAGE LOCAL DEBUG ===');
-  console.log('Données stockées:', localStorage.getItem(STORAGE_KEY));
-  console.log('Créé le:', new Date(parseInt(localStorage.getItem(STORAGE_KEY + '_created'))));
-  console.log('Mis à jour le:', new Date(parseInt(localStorage.getItem(STORAGE_KEY + '_updated'))));
+// Fonction de debug pour vérifier l'état JSONBin.io
+const debugJSONBinState = async () => {
+  console.log('=== ÉTAT JSONBIN.IO DEBUG ===');
+  try {
+    const data = await loadInteractionsFromJSONBin();
+    console.log('Données actuelles:', data);
+    console.log('Bin ID:', JSONBIN_CONFIG.binId);
+  } catch (error) {
+    console.error('Erreur debug:', error);
+  }
   console.log('================================');
 };
 
 // Fonction pour réinitialiser les données (utile pour les tests)
-const resetStats = () => {
-  localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem(STORAGE_KEY + '_created');
-  localStorage.removeItem(STORAGE_KEY + '_updated');
-  console.log('🔄 Données réinitialisées');
+const resetStats = async () => {
+  try {
+    const defaultStats = getDefaultStats();
+    const success = await saveInteractionsToJSONBin(defaultStats);
+    if (success) {
+      console.log('🔄 Données réinitialisées sur JSONBin.io');
+    } else {
+      console.error('❌ Erreur lors de la réinitialisation');
+    }
+    return success;
+  } catch (error) {
+    console.error('❌ Erreur resetStats:', error);
+    return false;
+  }
 };
 
 // Logs de vérification des exports
