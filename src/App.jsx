@@ -24,7 +24,7 @@ function App() {
   const [artworks, setArtworks] = useState([]);
 
   // Get basename from Vite config for consistency
-  const basename = import.meta.env.BASE_URL;
+  const basename = '/';
 
   return (
     <Router basename={basename}>
