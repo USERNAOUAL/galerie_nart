@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test JSONBin - Galerie Nart</title>
+</head>
+<body>
+    <h1>Test de connexion JSONBin.io</h1>
+    <button onclick="testLoad()">Charger les données</button>
+    <button onclick="testSave()">Sauvegarder des données test</button>
+    <button onclick="testIncrement()">Incrémenter un like</button>
+    
+    <div id="results"></div>
+
+    <script>
+        const FIXED_BIN_URL = 'https://api.jsonbin.io/v3/b/66b6c4e5e41b4d34e420180f';
+        
+        const log = (message) => {
+            const results = document.getElementById('results');
+            results.innerHTML += '<p>' + new Date().toLocaleTimeString() + ': ' + message + '</p>';
+            console.log(message);
+        };
+
+        async function testLoad() {
+            log('🔄 Test de chargement...');
+            try {
+                const response = await fetch(`${FIXED_BIN_URL}/latest`);
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Données chargées: ' + JSON.stringify(data.record, null, 2));
+                } else {
+                    log('❌ Erreur chargement: ' + response.status);
+                }
+            } catch (error) {
+                log('❌ Erreur: ' + error.message);
+            }
+        }
+
+        async function testSave() {
+            log('💾 Test de sauvegarde...');
+            const testData = {
+                artwork_stats: {
+                    bateau: { likes: 5, interested: 2 },
+                    abstrait: { likes: 3, interested: 1 },
+                    oiseaux: { likes: 8, interested: 3 },
+                    vase: { likes: 2, interested: 0 },
+                    beach: { likes: 12, interested: 5 },
+                    boujie: { likes: 6, interested: 1 },
+                    collection: { likes: 9, interested: 4 }
+                },
+                last_updated: Date.now(),
+                test_from: 'test-page'
+            };
+
+            try {
+                const response = await fetch(FIXED_BIN_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+
+                if (response.ok) {
+                    log('✅ Données sauvegardées avec succès!');
+                } else {
+                    log('❌ Erreur sauvegarde: ' + response.status);
+                }
+            } catch (error) {
+                log('❌ Erreur: ' + error.message);
+            }
+        }
+
+        async function testIncrement() {
+            log('⬆️ Test d\'incrémentation...');
+            try {
+                // Charger d'abord
+                const response = await fetch(`${FIXED_BIN_URL}/latest`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const stats = data.record.artwork_stats;
+                    
+                    // Incrémenter
+                    stats.bateau.likes += 1;
+                    
+                    // Sauvegarder
+                    const saveResponse = await fetch(FIXED_BIN_URL, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            artwork_stats: stats,
+                            last_updated: Date.now()
+                        })
+                    });
+
+                    if (saveResponse.ok) {
+                        log('✅ Like incrémenté pour bateau!');
+                    }
+                }
+            } catch (error) {
+                log('❌ Erreur: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -3,6 +3,7 @@ import emailjs from '@emailjs/browser';
 import { EMAIL_CONFIG } from '../config/emailConfig';
 import { 
   loadInteractionsFromJSONBin, 
+  saveInteractionsToJSONBin, 
   incrementLikes, 
   incrementInterested 
 } from '../services/jsonbinService';
@@ -220,23 +221,37 @@ const Gallery = () => {
     const loadData = async () => {
       setLoading(true);
       
-      // Charger les œuvres depuis config.yaml
-      const configArtworks = await loadArtworksFromConfig();
-      
-      // Charger les statistiques depuis JSONBin
-      const artworkStats = await loadInteractionsFromJSONBin();
-      
-      // Fusionner les œuvres avec leurs statistiques
-      const artworksWithStats = configArtworks.map(artwork => ({
-        ...artwork,
-        likes: artworkStats[artwork.id]?.likes || 0,
-        interested: artworkStats[artwork.id]?.interested || 0
-      }));
-      
-      setArtworks(artworksWithStats);
-      setInteractions(artworkStats);
-      
-      setLoading(false);
+      try {
+        console.log('🔄 Début du chargement des données...');
+        
+        // Charger les œuvres depuis config.yaml
+        const configArtworks = await loadArtworksFromConfig();
+        console.log('📁 Œuvres chargées:', configArtworks.length);
+        
+        // Charger les statistiques depuis JSONBin
+        const artworkStats = await loadInteractionsFromJSONBin();
+        console.log('📊 Statistiques chargées:', artworkStats);
+        
+        // Fusionner les œuvres avec leurs statistiques
+        const artworksWithStats = configArtworks.map(artwork => {
+          const stats = artworkStats[artwork.id] || { likes: 0, interested: 0 };
+          console.log(`🎨 ${artwork.id}: likes=${stats.likes}, interested=${stats.interested}`);
+          return {
+            ...artwork,
+            likes: stats.likes,
+            interested: stats.interested
+          };
+        });
+        
+        console.log('✅ Données finales:', artworksWithStats);
+        setArtworks(artworksWithStats);
+        setInteractions(artworkStats);
+        
+      } catch (error) {
+        console.error('❌ Erreur lors du chargement:', error);
+      } finally {
+        setLoading(false);
+      }
     };
     
     loadData();
