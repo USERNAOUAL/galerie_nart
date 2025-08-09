@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import emailjs from '@emailjs/browser';
 import { EMAIL_CONFIG } from '../config/emailConfig';
+import { getAssetPath } from '../utils/assetUtils';
 import "../styles/Gallery.css";
 
 // Fonction pour charger les interactions depuis le fichier YAML
 const loadInteractionsFromConfig = async () => {
   try {
-    const response = await fetch('/artworks/interactions.yaml');
+    const response = await fetch(getAssetPath('artworks/interactions.yaml'));
     if (!response.ok) {
       console.log('Fichier interactions.yaml non trouvé, utilisation des valeurs par défaut');
       return {};
@@ -119,7 +120,7 @@ const saveInteractionsToConfig = async (interactions) => {
 // Fonction pour charger la configuration des œuvres depuis le fichier YAML
 const loadArtworksFromConfig = async () => {
   try {
-    const response = await fetch('/artworks/config.yaml');
+    const response = await fetch(getAssetPath('artworks/config.yaml'));
     if (!response.ok) {
       throw new Error('Impossible de charger le fichier de configuration');
     }
@@ -147,7 +148,7 @@ const loadArtworksFromConfig = async () => {
         } else if (trimmed.startsWith('dimensions:')) {
           currentArtwork.dimensions = trimmed.split(':')[1].trim().replace(/['"]/g, '');
         } else if (trimmed.startsWith('image:')) {
-          currentArtwork.image = `/artworks/${trimmed.split(':')[1].trim().replace(/['"]/g, '')}`;
+          currentArtwork.image = getAssetPath(`artworks/${trimmed.split(':')[1].trim().replace(/['"]/g, '')}`);
         }
       }
     }
@@ -164,18 +165,75 @@ const loadArtworksFromConfig = async () => {
     return artworksWithInteractions;
   } catch (error) {
     console.error('Erreur lors du chargement des œuvres:', error);
-    // Fallback vers les œuvres par défaut
-    return [
+    // Fallback vers les œuvres basées sur votre config.yaml
+    const fallbackArtworks = [
       {
-        id: "default-1",
-        title: "Exemple d'œuvre",
-        image: "https://via.placeholder.com/400x300/a13c2f/ffffff?text=Votre+Oeuvre",
-        description: "Ajoutez vos propres œuvres via le fichier config.yaml",
+        id: "abstrait",
+        title: "Abstraction Moderne",
+        image: getAssetPath('artworks/abstrait.jpg'),
+        description: "Une œuvre abstraite exprimant les émotions à travers les formes et les couleurs.",
         dimensions: "50x70 cm",
+        likes: 0,
+        interested: 0
+      },
+      {
+        id: "bateau",
+        title: "Navigation",
+        image: getAssetPath('artworks/bateau.jpg'),
+        description: "Une peinture maritime capturant l'essence de la navigation et des horizons infinis.",
+        dimensions: "60x80 cm",
+        likes: 0,
+        interested: 0
+      },
+      {
+        id: "beach",
+        title: "Plage Sereine",
+        image: getAssetPath('artworks/beach.jpg'),
+        description: "Un paysage côtier paisible évoquant la tranquillité des bords de mer.",
+        dimensions: "50x70 cm",
+        likes: 0,
+        interested: 0
+      },
+      {
+        id: "boujie",
+        title: "Élégance",
+        image: getAssetPath('artworks/boujie.jpg'),
+        description: "Une œuvre sophistiquée reflétant le raffinement et l'élégance artistique.",
+        dimensions: "40x60 cm",
+        likes: 0,
+        interested: 0
+      },
+      {
+        id: "collection",
+        title: "Collection Privée",
+        image: getAssetPath('artworks/collection.jpg'),
+        description: "Une pièce unique faisant partie d'une collection artistique personnelle.",
+        dimensions: "55x75 cm",
+        likes: 0,
+        interested: 0
+      },
+      {
+        id: "oiseaux",
+        title: "Envol",
+        image: getAssetPath('artworks/oiseaux.jpg'),
+        description: "Représentation artistique des oiseaux symbolisant la liberté et l'évasion.",
+        dimensions: "45x65 cm",
+        likes: 0,
+        interested: 0
+      },
+      {
+        id: "vase",
+        title: "Nature Morte",
+        image: getAssetPath('artworks/vase.jpg'),
+        description: "Étude contemplative d'objets du quotidien transformés en art.",
+        dimensions: "40x50 cm",
         likes: 0,
         interested: 0
       }
     ];
+    
+    console.log('Utilisation des œuvres de fallback');
+    return fallbackArtworks;
   }
 };
 

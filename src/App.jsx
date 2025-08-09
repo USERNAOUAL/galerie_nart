@@ -5,11 +5,12 @@ import Gallery from './components/Gallery';
 import ArtworkDetail from './components/ArtworkDetail';
 import ArtworkImage from './components/ArtworkImage';
 import About from './components/About';
+import { getAssetPath } from './utils/assetUtils';
 
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useSearchParams } from 'react-router-dom';
 
-// Import des polices Google Fonts
+// Import des polices Google Fonts.
 const fontLink = document.createElement('link');
 fontLink.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;600;700&family=Roboto:wght@300;400;500;600;700&display=swap';
 fontLink.rel = 'stylesheet';
@@ -22,8 +23,11 @@ function App() {
   const [interests, setInterests] = useState([]);
   const [artworks, setArtworks] = useState([]);
 
+  // Get basename from Vite config for consistency
+  const basename = '/';
+
   return (
-    <Router>
+    <Router basename={basename}>
       <div>
         <Menu />
         
@@ -38,7 +42,7 @@ function App() {
                   height: '80vh',
                   minHeight: '600px',
                   width: '100%',
-                  backgroundImage: 'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url("/art-background.jpg")',
+                  backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url("${getAssetPath('art-background.jpg')}")`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center center',
                   backgroundRepeat: 'no-repeat',
@@ -83,7 +87,7 @@ function App() {
                     justifyContent: 'center'
                   }}>
                     <img 
-                      src="/nart-logo.png" 
+                      src={getAssetPath('nart-logo.png')} 
                       alt="Logo N'ART" 
                       style={{
                         height: '140px',

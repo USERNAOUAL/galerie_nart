@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getAssetPath } from '../utils/assetUtils';
 
 const About = () => {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ const About = () => {
       background: `
         linear-gradient(135deg, rgba(248, 246, 242, 0.85) 0%, rgba(255, 255, 255, 0.8) 100%),
         linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.3)),
-        url("/art-background.jpg")
+        url("${getAssetPath('art-background.jpg')}")
       `,
       backgroundSize: 'cover',
       backgroundPosition: 'center center',
@@ -106,7 +107,7 @@ const About = () => {
                 transition: 'all 0.3s ease'
               }}>
                 <img 
-                  src="/nart-logo.png" 
+                  src={getAssetPath('nart-logo.png')} 
                   alt="Logo N'ART" 
                   style={{
                     height: '80px',
