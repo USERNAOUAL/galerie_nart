@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import emailjs from '@emailjs/browser';
 import { EMAIL_CONFIG } from '../config/emailConfig';
+import { 
+  loadInteractionsFromJSONBin, 
+  incrementLikes, 
+  incrementInterested 
+} from '../services/jsonbinService';
 import { getAssetPath } from '../utils/assetUtils';
 import "../styles/Gallery.css";
 
@@ -74,46 +79,6 @@ const loadInteractionsFromConfig = async () => {
   } catch (error) {
     console.error('Erreur lors du chargement des interactions:', error);
     return {};
-  }
-};
-
-// Fonction pour sauvegarder les interactions (simulation - en réalité nécessiterait un backend)
-const saveInteractionsToConfig = async (interactions) => {
-  try {
-    // En mode développement, on affiche la structure à sauvegarder
-    console.log('=== INTERACTIONS À SAUVEGARDER ===');
-    
-    let yamlOutput = '# Configuration des interactions utilisateurs\n';
-    yamlOutput += '# Ce fichier stocke les likes et messages d\'intérêt pour chaque œuvre d\'art\n\n';
-    yamlOutput += 'artwork_interactions:\n';
-    
-    for (const [artworkId, data] of Object.entries(interactions)) {
-      yamlOutput += `  ${artworkId}:\n`;
-      yamlOutput += `    likes: ${data.likes || 0}\n`;
-      yamlOutput += `    messages:\n`;
-      
-      if (data.messages && data.messages.length > 0) {
-        for (const message of data.messages) {
-          yamlOutput += `      - name: "${message.name}"\n`;
-          yamlOutput += `        email: "${message.email}"\n`;
-          yamlOutput += `        message: "${message.message}"\n`;
-          yamlOutput += `        timestamp: ${message.timestamp}\n`;
-        }
-      }
-      yamlOutput += '\n';
-    }
-    
-    console.log(yamlOutput);
-    console.log('=== FIN INTERACTIONS À SAUVEGARDER ===');
-    
-    // Dans un vrai projet, il faudrait un endpoint backend pour sauvegarder
-    // Pour l'instant, on stocke temporairement dans localStorage comme fallback
-    localStorage.setItem('nart_interactions_backup', JSON.stringify(interactions));
-    
-    return true;
-  } catch (error) {
-    console.error('Erreur lors de la sauvegarde des interactions:', error);
-    return false;
   }
 };
 
@@ -255,29 +220,21 @@ const Gallery = () => {
     const loadData = async () => {
       setLoading(true);
       
-      // Charger les œuvres et interactions en parallèle
-      const [configArtworks, loadedInteractions] = await Promise.all([
-        loadArtworksFromConfig(),
-        loadInteractionsFromConfig()
-      ]);
+      // Charger les œuvres depuis config.yaml
+      const configArtworks = await loadArtworksFromConfig();
       
-      setArtworks(configArtworks);
-      setInteractions(loadedInteractions);
+      // Charger les statistiques depuis JSONBin
+      const artworkStats = await loadInteractionsFromJSONBin();
       
-      // Mettre à jour les interests depuis les interactions chargées
-      const allMessages = [];
-      for (const [artworkId, data] of Object.entries(loadedInteractions)) {
-        if (data.messages && Array.isArray(data.messages)) {
-          data.messages.forEach(message => {
-            allMessages.push({
-              ...message,
-              artworkId,
-              artTitle: configArtworks.find(art => art.id === artworkId)?.title || 'Œuvre inconnue'
-            });
-          });
-        }
-      }
-      setInterests(allMessages);
+      // Fusionner les œuvres avec leurs statistiques
+      const artworksWithStats = configArtworks.map(artwork => ({
+        ...artwork,
+        likes: artworkStats[artwork.id]?.likes || 0,
+        interested: artworkStats[artwork.id]?.interested || 0
+      }));
+      
+      setArtworks(artworksWithStats);
+      setInteractions(artworkStats);
       
       setLoading(false);
     };
@@ -319,29 +276,26 @@ const Gallery = () => {
     }
   };
 
-  // Gestion des likes avec système de fichiers
+  // Gestion des likes avec JSONBin
   const handleLike = async (artworkId) => {
-    // Mettre à jour les interactions localement
-    const newInteractions = { ...interactions };
-    if (!newInteractions[artworkId]) {
-      newInteractions[artworkId] = { likes: 0, messages: [] };
+    try {
+      // Incrémenter les likes via JSONBin
+      const newStats = await incrementLikes(artworkId, interactions);
+      
+      // Mettre à jour l'état local
+      setInteractions(newStats);
+      
+      // Mettre à jour les œuvres pour refléter le nouveau nombre de likes
+      setArtworks(prevArtworks => 
+        prevArtworks.map(art => 
+          art.id === artworkId 
+            ? { ...art, likes: newStats[artworkId]?.likes || 0 }
+            : art
+        )
+      );
+    } catch (error) {
+      console.error('Erreur lors du like:', error);
     }
-    newInteractions[artworkId].likes = (newInteractions[artworkId].likes || 0) + 1;
-    
-    // Mettre à jour l'état local
-    setInteractions(newInteractions);
-    
-    // Mettre à jour les œuvres pour refléter le nouveau nombre de likes
-    setArtworks(prevArtworks => 
-      prevArtworks.map(art => 
-        art.id === artworkId 
-          ? { ...art, likes: newInteractions[artworkId].likes }
-          : art
-      )
-    );
-    
-    // Sauvegarder les interactions
-    await saveInteractionsToConfig(newInteractions);
   };
 
   // Gestion des messages d'intérêt avec système de fichiers et envoi d'email
@@ -366,35 +320,32 @@ const Gallery = () => {
         return;
       }
 
-      // Si l'email est envoyé avec succès, sauvegarder dans les interactions
-      const newInteractions = { ...interactions };
-      if (!newInteractions[artworkId]) {
-        newInteractions[artworkId] = { likes: 0, messages: [] };
+      // Si l'email est envoyé avec succès, sauvegarder dans les interactions avec JSONBin
+      try {
+        const newStats = await incrementInterested(artworkId, interactions, newMessage);
+        
+        // Mettre à jour l'état local des interactions
+        setInteractions(newStats);
+        
+        // Mettre à jour les interests pour la liste des messages
+        const newInterest = {
+          ...newMessage,
+          artworkId,
+          artTitle: artwork.title
+        };
+        setInterests([...interests, newInterest]);
+        
+        // Mettre à jour les œuvres pour refléter le nouveau nombre d'intéressés
+        setArtworks(prevArtworks => 
+          prevArtworks.map(art => 
+            art.id === artworkId 
+              ? { ...art, interested: newStats[artworkId]?.messages?.length || 0 }
+              : art
+          )
+        );
+      } catch (error) {
+        console.error('Erreur lors de la sauvegarde des interactions:', error);
       }
-      newInteractions[artworkId].messages.push(newMessage);
-      
-      // Mettre à jour l'état local des interactions
-      setInteractions(newInteractions);
-      
-      // Mettre à jour les interests pour la liste des messages
-      const newInterest = {
-        ...newMessage,
-        artworkId,
-        artTitle: artwork.title
-      };
-      setInterests([...interests, newInterest]);
-      
-      // Mettre à jour les œuvres pour refléter le nouveau nombre d'intéressés
-      setArtworks(prevArtworks => 
-        prevArtworks.map(art => 
-          art.id === artworkId 
-            ? { ...art, interested: newInteractions[artworkId].messages.length }
-            : art
-        )
-      );
-      
-      // Sauvegarder les interactions
-      await saveInteractionsToConfig(newInteractions);
       
       setEmailStatus('success');
       setShowFormIdx(null);
