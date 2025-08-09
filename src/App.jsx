@@ -24,7 +24,7 @@ function App() {
   const [artworks, setArtworks] = useState([]);
 
   return (
-    <Router>
+    <Router basename="/galerie_nart">
       <div>
         <Menu />
         
