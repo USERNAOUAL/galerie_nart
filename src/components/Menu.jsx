@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
+import { getAssetPath } from '../utils/assetUtils';
 import "../styles/Menu.css";
 
 const Menu = () => {
@@ -9,7 +10,7 @@ const Menu = () => {
   return (
     <nav className="menu inspired-menu">
       <div className="logo-container" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-        <img src="/nart-logo.png" alt="Nart Logo" className="logo small-logo" />
+        <img src={getAssetPath('nart-logo.png')} alt="Nart Logo" className="logo small-logo" />
       </div>
       <ul className="menu-links horizontal-links">
         <li 

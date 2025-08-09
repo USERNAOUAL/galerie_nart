@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import emailjs from '@emailjs/browser';
 import { EMAIL_CONFIG } from '../config/emailConfig';
+import { getAssetPath } from '../utils/assetUtils';
 import "../styles/Gallery.css";
 
 // Fonction pour charger les interactions depuis le fichier YAML
 const loadInteractionsFromConfig = async () => {
   try {
-    const response = await fetch('/artworks/interactions.yaml');
+    const response = await fetch(getAssetPath('artworks/interactions.yaml'));
     if (!response.ok) {
       console.log('Fichier interactions.yaml non trouvé, utilisation des valeurs par défaut');
       return {};
@@ -119,7 +120,7 @@ const saveInteractionsToConfig = async (interactions) => {
 // Fonction pour charger la configuration des œuvres depuis le fichier YAML
 const loadArtworksFromConfig = async () => {
   try {
-    const response = await fetch('/artworks/config.yaml');
+    const response = await fetch(getAssetPath('artworks/config.yaml'));
     if (!response.ok) {
       throw new Error('Impossible de charger le fichier de configuration');
     }
@@ -147,7 +148,7 @@ const loadArtworksFromConfig = async () => {
         } else if (trimmed.startsWith('dimensions:')) {
           currentArtwork.dimensions = trimmed.split(':')[1].trim().replace(/['"]/g, '');
         } else if (trimmed.startsWith('image:')) {
-          currentArtwork.image = `/artworks/${trimmed.split(':')[1].trim().replace(/['"]/g, '')}`;
+          currentArtwork.image = getAssetPath(`artworks/${trimmed.split(':')[1].trim().replace(/['"]/g, '')}`);
         }
       }
     }

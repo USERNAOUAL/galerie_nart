@@ -5,6 +5,7 @@ import Gallery from './components/Gallery';
 import ArtworkDetail from './components/ArtworkDetail';
 import ArtworkImage from './components/ArtworkImage';
 import About from './components/About';
+import { getAssetPath } from './utils/assetUtils';
 
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useSearchParams } from 'react-router-dom';
@@ -38,7 +39,7 @@ function App() {
                   height: '80vh',
                   minHeight: '600px',
                   width: '100%',
-                  backgroundImage: 'linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url("/art-background.jpg")',
+                  backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url("${getAssetPath('art-background.jpg')}")`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center center',
                   backgroundRepeat: 'no-repeat',
@@ -83,7 +84,7 @@ function App() {
                     justifyContent: 'center'
                   }}>
                     <img 
-                      src="/nart-logo.png" 
+                      src={getAssetPath('nart-logo.png')} 
                       alt="Logo N'ART" 
                       style={{
                         height: '140px',
