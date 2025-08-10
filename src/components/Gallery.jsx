@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from "react";
 import emailjs from '@emailjs/browser';
 import { EMAIL_CONFIG } from '../config/emailConfig';
-import { 
-  loadInteractionsFromJSONBin, 
-  saveInteractionsToJSONBin, 
-  incrementLikes, 
-  incrementInterested 
-} from '../services/jsonbinService';
+import firebaseService from '../services/firebaseService';
 import { getAssetPath } from '../utils/assetUtils';
 import "../styles/Gallery.css";
 
@@ -242,24 +237,44 @@ const Gallery = () => {
         const configArtworks = await loadArtworksFromConfig();
         console.log('📁 Œuvres chargées:', configArtworks.length);
         
-        // Charger les statistiques depuis JSONBin
-        const artworkStats = await loadInteractionsFromJSONBin();
-        console.log('📊 Statistiques chargées:', artworkStats);
+        // Charger les statistiques depuis Firebase
+        await firebaseService.loadInteractions();
+        const firebaseStats = firebaseService.getInteractions();
+        console.log('📊 Statistiques Firebase chargées:', firebaseStats);
         
-        // Fusionner les œuvres avec leurs statistiques
+        // Fusionner les œuvres avec leurs statistiques Firebase
         const artworksWithStats = configArtworks.map(artwork => {
-          const stats = artworkStats[artwork.id] || { likes: 0, interested: 0 };
-          console.log(`🎨 ${artwork.id}: likes=${stats.likes}, interested=${stats.interested}`);
+          const likes = firebaseService.getLikes(artwork.id);
+          const interested = firebaseService.getInterests(artwork.id);
+          console.log(`🎨 ${artwork.id}: likes=${likes}, interested=${interested}`);
           return {
             ...artwork,
-            likes: stats.likes,
-            interested: stats.interested
+            likes,
+            interested
           };
         });
         
         console.log('✅ Données finales:', artworksWithStats);
         setArtworks(artworksWithStats);
-        setInteractions(artworkStats);
+        setInteractions(firebaseStats);
+        
+        // Écouter les changements en temps réel
+        const unsubscribe = firebaseService.subscribeToInteractions((newInteractions) => {
+          console.log('🔄 Mise à jour en temps réel:', newInteractions);
+          setInteractions(newInteractions);
+          
+          // Mettre à jour les œuvres avec les nouvelles données
+          setArtworks(prevArtworks => 
+            prevArtworks.map(artwork => ({
+              ...artwork,
+              likes: firebaseService.getLikes(artwork.id),
+              interested: firebaseService.getInterests(artwork.id)
+            }))
+          );
+        });
+        
+        // Nettoyer l'abonnement au démontage
+        return () => unsubscribe();
         
       } catch (error) {
         console.error('❌ Erreur lors du chargement:', error);
@@ -267,11 +282,16 @@ const Gallery = () => {
         setLoading(false);
       }
     };
-    
+
     loadData();
   }, []);
 
-  // Filtrer les œuvres par recherche seulement
+  // Nettoyer les abonnements Firebase au démontage du composant
+  useEffect(() => {
+    return () => {
+      firebaseService.unsubscribeAll();
+    };
+  }, []);  // Filtrer les œuvres par recherche seulement
   const filteredArtworks = artworks.filter(art => {
     const matchesSearch = art.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          art.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -305,23 +325,19 @@ const Gallery = () => {
     }
   };
 
-  // Gestion des likes avec JSONBin
+  // Gestion des likes avec Firebase
   const handleLike = async (artworkId) => {
     try {
-      // Incrémenter les likes via JSONBin
-      const newStats = await incrementLikes(artworkId, interactions);
+      // Incrémenter les likes via Firebase
+      const success = await firebaseService.addLike(artworkId);
       
-      // Mettre à jour l'état local
-      setInteractions(newStats);
-      
-      // Mettre à jour les œuvres pour refléter le nouveau nombre de likes
-      setArtworks(prevArtworks => 
-        prevArtworks.map(art => 
-          art.id === artworkId 
-            ? { ...art, likes: newStats[artworkId]?.likes || 0 }
-            : art
-        )
-      );
+      if (success) {
+        console.log(`✅ Like ajouté pour ${artworkId}`);
+        // Firebase mettra à jour automatiquement via la subscription temps réel
+        // Pas besoin de mettre à jour manuellement l'état local
+      } else {
+        console.error('❌ Échec de l\'ajout du like');
+      }
     } catch (error) {
       console.error('Erreur lors du like:', error);
     }
@@ -349,29 +365,26 @@ const Gallery = () => {
         return;
       }
 
-      // Si l'email est envoyé avec succès, sauvegarder dans les interactions avec JSONBin
+      // Si l'email est envoyé avec succès, sauvegarder dans les interactions avec Firebase
       try {
-        const newStats = await incrementInterested(artworkId, interactions, newMessage);
+        const success = await firebaseService.addInterest(artworkId);
         
-        // Mettre à jour l'état local des interactions
-        setInteractions(newStats);
-        
-        // Mettre à jour les interests pour la liste des messages
-        const newInterest = {
-          ...newMessage,
-          artworkId,
-          artTitle: artwork.title
-        };
-        setInterests([...interests, newInterest]);
-        
-        // Mettre à jour les œuvres pour refléter le nouveau nombre d'intéressés
-        setArtworks(prevArtworks => 
-          prevArtworks.map(art => 
-            art.id === artworkId 
-              ? { ...art, interested: newStats[artworkId]?.messages?.length || 0 }
-              : art
-          )
-        );
+        if (success) {
+          console.log(`✅ Intérêt ajouté pour ${artworkId}`);
+          
+          // Ajouter le message à la liste locale des interests pour l'affichage
+          const newInterest = {
+            ...newMessage,
+            artworkId,
+            artTitle: artwork.title
+          };
+          setInterests([...interests, newInterest]);
+          
+          // Firebase mettra à jour automatiquement via la subscription temps réel
+          // Pas besoin de mettre à jour manuellement les œuvres
+        } else {
+          console.error('❌ Échec de l\'ajout de l\'intérêt');
+        }
       } catch (error) {
         console.error('Erreur lors de la sauvegarde des interactions:', error);
       }

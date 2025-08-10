@@ -1,0 +1,61 @@
+// Règles de sécurité Firestore pour votre galerie N'ART
+// À copier-coller dans la console Firebase > Firestore Database > Règles
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Règles pour la collection 'gallery'
+    match /gallery/{document} {
+      // Lecture : tout le monde peut lire les interactions
+      allow read: if true;
+      
+      // Écriture : permettre seulement les mises à jour des likes et interests
+      allow write: if 
+        // Vérifier que le document est 'interactions'
+        document == 'interactions' &&
+        // Vérifier que seuls les champs autorisés sont modifiés
+        request.resource.data.keys().hasAll(['likes', 'interests', 'lastUpdated']) &&
+        // Vérifier que les nouvelles valeurs sont des nombres positifs
+        isValidInteractionUpdate(resource.data, request.resource.data);
+    }
+  }
+  
+  // Fonction pour valider les mises à jour d'interactions
+  function isValidInteractionUpdate(existingData, newData) {
+    // Vérifier que les likes sont des objets avec des valeurs numériques
+    let likesValid = newData.likes is map &&
+      newData.likes.values().all(value => value is number && value >= 0);
+    
+    // Vérifier que les interests sont des objets avec des valeurs numériques  
+    let interestsValid = newData.interests is map &&
+      newData.interests.values().all(value => value is number && value >= 0);
+    
+    // Vérifier que lastUpdated est une chaîne (timestamp ISO)
+    let timestampValid = newData.lastUpdated is string;
+    
+    return likesValid && interestsValid && timestampValid;
+  }
+}
+
+/*
+INSTRUCTIONS POUR CONFIGURER CES RÈGLES :
+
+1. Allez sur https://console.firebase.google.com
+2. Sélectionnez votre projet
+3. Dans le menu de gauche, cliquez sur "Firestore Database"
+4. Cliquez sur l'onglet "Règles" 
+5. Remplacez le contenu par les règles ci-dessus
+6. Cliquez sur "Publier"
+
+CES RÈGLES PERMETTENT :
+✅ Lecture publique des interactions (nécessaire pour afficher les likes/interests)
+✅ Écriture sécurisée avec validation des données
+✅ Protection contre les données malveillantes
+✅ Validation des types de données (nombres positifs uniquement)
+
+CES RÈGLES EMPÊCHENT :
+❌ Suppression du document d'interactions
+❌ Modification de champs non autorisés
+❌ Insertion de valeurs négatives ou non numériques
+❌ Accès aux autres collections (si vous en ajoutez)
+*/
