@@ -106,6 +106,32 @@
   box-shadow: 0 2px 8px #a13c2f33;
 }
 
+/* Contact Button Styles */
+.contact-btn {
+  background: #333;
+  color: #fff;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 25px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.contact-btn:hover {
+  background: #a13c2f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(161, 60, 47, 0.3);
+}
+
+.contact-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 /* Responsive Design pour Mobile */
 @media (max-width: 768px) {
   .menu {
