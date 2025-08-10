@@ -9,7 +9,11 @@ const Menu = () => {
 
   return (
     <nav className="menu inspired-menu">
-      <div className="logo-container" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+      <div 
+        className="logo-container" 
+        onClick={() => navigate('/')} 
+        style={{ cursor: 'pointer' }}
+      >
         <img src={getAssetPath('nart-logo.png')} alt="Nart Logo" className="logo small-logo" />
       </div>
       <ul className="menu-links horizontal-links">

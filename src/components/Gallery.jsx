@@ -215,6 +215,20 @@ const Gallery = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedImageModal, setSelectedImageModal] = useState(null);
   const [emailStatus, setEmailStatus] = useState(null); // 'sending', 'success', 'error'
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Détecter si on est sur mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Charger les œuvres et interactions au montage du composant
   useEffect(() => {
@@ -418,10 +432,11 @@ const Gallery = () => {
         overflow: 'hidden'
       }}>
       <div style={{
-        maxWidth: '1400px',
+        maxWidth: isMobile ? '100%' : '1400px',
         margin: '0 auto',
         position: 'relative',
-        zIndex: 2
+        zIndex: 2,
+        padding: isMobile ? '0' : '0 2rem'
       }}>
         
         {/* Notification d'envoi d'email */}
@@ -587,12 +602,18 @@ const Gallery = () => {
 
         {/* Grille d'œuvres modernisée */}
         {!loading && (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-            gap: '2.5rem',
-            padding: '0 1rem'
-          }}>
+          <div 
+            className="gallery-grid-responsive"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(350px, 1fr))',
+              gap: isMobile ? '1rem' : '2.5rem',
+              padding: isMobile ? '0' : '0 1rem',
+              margin: isMobile ? '0' : 'auto',
+              width: '100%',
+              maxWidth: '100%',
+              boxSizing: 'border-box'
+            }}>
             {filteredArtworks.map((art) => {
             return (
               <div 

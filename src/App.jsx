@@ -1,4 +1,5 @@
 import './App.css';
+import './styles/responsive.css';
 
 import Menu from './components/Menu';
 import Gallery from './components/Gallery';
@@ -40,13 +41,14 @@ function App() {
                 <div className="hero-section" style={{
                   position: 'relative',
                   height: '80vh',
-                  minHeight: '600px',
+                  minHeight: '400px',
+                  maxHeight: '800px',
                   width: '100%',
                   backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.4)), url("${getAssetPath('art-background.jpg')}")`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center center',
                   backgroundRepeat: 'no-repeat',
-                  backgroundAttachment: 'fixed',
+                  backgroundAttachment: window.innerWidth > 768 ? 'fixed' : 'scroll',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
@@ -56,8 +58,8 @@ function App() {
                   borderRadius: '0 0 50px 50px',
                   overflow: 'hidden',
                   boxSizing: 'border-box',
-                  paddingTop: '2rem',
-                  paddingBottom: '6rem'
+                  paddingTop: '1rem',
+                  paddingBottom: '3rem'
                 }}>
                   {/* Effet de particules artistiques */}
                   <div style={{
@@ -75,8 +77,8 @@ function App() {
                     background: 'rgba(255, 255, 255, 0.15)',
                     backdropFilter: 'blur(15px)',
                     borderRadius: '50%',
-                    padding: '2.5rem',
-                    marginBottom: '1.5rem',
+                    padding: window.innerWidth <= 768 ? '1.5rem' : '2.5rem',
+                    marginBottom: '1rem',
                     marginTop: '0rem',
                     border: '1px solid rgba(255, 255, 255, 0.25)',
                     boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15)',
@@ -90,8 +92,8 @@ function App() {
                       src={getAssetPath('nart-logo.png')} 
                       alt="Logo N'ART" 
                       style={{
-                        height: '140px',
-                        width: '140px',
+                        height: window.innerWidth <= 768 ? '80px' : '140px',
+                        width: window.innerWidth <= 768 ? '80px' : '140px',
                         filter: 'brightness(1.2) contrast(1.1) drop-shadow(0 4px 20px rgba(255, 255, 255, 0.3))',
                         transition: 'transform 0.4s ease',
                         objectFit: 'contain'
@@ -105,7 +107,7 @@ function App() {
                   <div className="hero-content" style={{
                     maxWidth: '900px',
                     width: '100%',
-                    padding: '0 2rem',
+                    padding: window.innerWidth <= 768 ? '0 1rem' : '0 2rem',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -115,62 +117,68 @@ function App() {
                     zIndex: 3
                   }}>
                     <h1 style={{
-                      fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
+                      fontSize: window.innerWidth <= 768 ? 'clamp(1.8rem, 5vw, 3rem)' : 'clamp(2.5rem, 6vw, 4.5rem)',
                       fontFamily: "'Playfair Display', serif",
                       fontWeight: '300',
                       color: '#ffffff',
-                      marginBottom: '1rem',
-                      marginTop: '-1rem',
+                      marginBottom: window.innerWidth <= 768 ? '0.5rem' : '1rem',
+                      marginTop: window.innerWidth <= 768 ? '0' : '-1rem',
                       letterSpacing: '0.15em',
                       textShadow: '0 4px 25px rgba(0, 0, 0, 0.6)',
                       lineHeight: '1.2',
                       textAlign: 'center'
                     }}>
-                      Créer des émotions
-                      <br />
-                      <span style={{
-                        fontWeight: '700',
-                        background: 'linear-gradient(135deg, #ffffff 0%, #f8f6f2 100%)',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        backgroundClip: 'text'
-                      }}>
-                        à travers l'art
-                      </span>
+                      {window.innerWidth <= 480 ? 'L\'art qui émeut' : 'Créer des émotions'}
+                      {window.innerWidth > 480 && (
+                        <>
+                          <br />
+                          <span style={{
+                            fontWeight: '700',
+                            background: 'linear-gradient(135deg, #ffffff 0%, #f8f6f2 100%)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text'
+                          }}>
+                            à travers l'art
+                          </span>
+                        </>
+                      )}
                     </h1>
                     
                     {/* Sous-titre élégant */}
                     <p style={{
-                      fontSize: 'clamp(1.2rem, 3vw, 1.6rem)',
+                      fontSize: window.innerWidth <= 768 ? 'clamp(1rem, 2.5vw, 1.3rem)' : 'clamp(1.2rem, 3vw, 1.6rem)',
                       color: 'rgba(255, 255, 255, 0.95)',
                       fontFamily: "'Roboto', sans-serif",
                       fontWeight: '300',
                       letterSpacing: '0.05em',
                       textShadow: '0 3px 15px rgba(0, 0, 0, 0.4)',
                       maxWidth: '700px',
-                      margin: '-0.5rem auto 0 auto',
+                      margin: window.innerWidth <= 768 ? '0 auto' : '-0.5rem auto 0 auto',
                       textAlign: 'center',
                       lineHeight: '1.4'
                     }}>
-                      Découvrez l'authenticité de l'art véritable
+                      {window.innerWidth <= 480 ? 'Art authentique' : 'Découvrez l\'authenticité de l\'art véritable'}
                     </p>
                   </div>
                   
                   {/* Flèche descendante animée */}
-                  <div style={{
-                    position: 'absolute',
-                    bottom: '3rem',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    color: 'rgba(255, 255, 255, 0.85)',
-                    fontSize: '2.5rem',
-                    animation: 'bounce 2s infinite',
-                    cursor: 'pointer',
-                    zIndex: 3,
-                    textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)'
-                  }}>
-                    ↓
-                  </div>
+                  {window.innerWidth > 480 && (
+                    <div style={{
+                      position: 'absolute',
+                      bottom: window.innerWidth <= 768 ? '1.5rem' : '3rem',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      color: 'rgba(255, 255, 255, 0.85)',
+                      fontSize: window.innerWidth <= 768 ? '2rem' : '2.5rem',
+                      animation: 'bounce 2s infinite',
+                      cursor: 'pointer',
+                      zIndex: 3,
+                      textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)'
+                    }}>
+                      ↓
+                    </div>
+                  )}
                 </div>
 
                 <Gallery 
