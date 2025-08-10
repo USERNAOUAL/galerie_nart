@@ -12,9 +12,27 @@ const Menu = () => {
       <div 
         className="logo-container" 
         onClick={() => navigate('/')} 
-        style={{ cursor: 'pointer' }}
+        style={{ 
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.7rem',
+          visibility: 'visible',
+          opacity: 1
+        }}
       >
-        <img src={getAssetPath('nart-logo.png')} alt="Nart Logo" className="logo small-logo" />
+        <img 
+          src={getAssetPath('nart-logo.png')} 
+          alt="Nart Logo" 
+          className="logo small-logo"
+          style={{
+            height: '80px',
+            width: 'auto',
+            display: 'block',
+            visibility: 'visible',
+            opacity: 1
+          }}
+        />
       </div>
       <ul className="menu-links horizontal-links">
         <li 

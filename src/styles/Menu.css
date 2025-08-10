@@ -55,6 +55,34 @@
   gap: 0.7rem;
 }
 
+/* Assurer que le logo est visible sur desktop */
+@media (min-width: 769px) {
+  .logo-container {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.7rem !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .logo, .small-logo {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: 80px !important;
+    width: auto !important;
+  }
+  
+  .menu.inspired-menu .logo-container {
+    display: flex !important;
+  }
+  
+  .menu.inspired-menu .small-logo {
+    height: 80px !important;
+    display: block !important;
+  }
+}
+
 .logo {
   height: 80px;
   margin-right: 0.5rem;
@@ -64,11 +92,13 @@
 }
 
 .small-logo {
-  height: 46px;
+  height: 80px;
   margin-right: 0.7rem;
   filter: contrast(1.1) saturate(1.2);
   transition: transform 0.2s ease;
   object-fit: contain;
+  width: auto;
+  max-width: none;
 }
 
 .logo:hover, .small-logo:hover {
