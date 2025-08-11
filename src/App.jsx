@@ -6,9 +6,7 @@ import Gallery from './components/Gallery';
 import ArtworkDetail from './components/ArtworkDetail';
 import ArtworkImage from './components/ArtworkImage';
 import About from './components/About';
-// Outils de migration Firebase (à supprimer après migration)
-import FirebaseTest from './components/FirebaseTest';
-import MigrationTool from './components/MigrationTool';
+import Contact from './components/Contact';
 import { getAssetPath } from './utils/assetUtils';
 
 import { useState, useEffect } from 'react';
@@ -51,7 +49,7 @@ function App() {
                   backgroundSize: 'cover',
                   backgroundPosition: 'center center',
                   backgroundRepeat: 'no-repeat',
-                  backgroundAttachment: window.innerWidth > 768 ? 'fixed' : 'scroll',
+                  backgroundAttachment: 'fixed',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
@@ -219,15 +217,9 @@ function App() {
             element={<About />} 
           />
           
-          {/* Routes temporaires pour la migration Firebase (à supprimer après migration) */}
           <Route 
-            path="/firebase-test" 
-            element={<FirebaseTest />} 
-          />
-          
-          <Route 
-            path="/migration" 
-            element={<MigrationTool />} 
+            path="/contact" 
+            element={<Contact />} 
           />
         </Routes>
         

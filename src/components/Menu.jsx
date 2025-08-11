@@ -75,7 +75,16 @@ const Menu = () => {
         </li>
       </ul>
       <div className="menu-contact">
-        <button className="contact-btn">Nous contacter</button>
+        <button 
+          className="contact-btn"
+          onClick={() => navigate('/contact')}
+          style={{
+            background: location.pathname === '/contact' ? '#8b2f23' : '',
+            transform: location.pathname === '/contact' ? 'translateY(-2px)' : ''
+          }}
+        >
+          Nous contacter
+        </button>
       </div>
     </nav>
   );

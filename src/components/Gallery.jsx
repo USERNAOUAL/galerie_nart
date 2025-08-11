@@ -433,22 +433,18 @@ const Gallery = () => {
       className="gallery-container"
       style={{
         padding: '4rem 2rem 6rem',
-        background: `
-          linear-gradient(135deg, rgba(248, 246, 242, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%),
-          radial-gradient(circle at 15% 20%, rgba(161, 60, 47, 0.08) 0%, transparent 50%),
-          radial-gradient(circle at 85% 80%, rgba(161, 60, 47, 0.06) 0%, transparent 50%),
-          radial-gradient(circle at 45% 60%, rgba(44, 62, 80, 0.04) 0%, transparent 40%),
-          linear-gradient(45deg, #f8f6f2 0%, #ffffff 50%, #f0ede7 100%)
-        `,
         minHeight: '100vh',
         position: 'relative',
-        overflow: 'hidden'
+        background: 'linear-gradient(135deg, rgba(248, 246, 242, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%)'
       }}>
+      
+      {/* Contenu principal */}
+      <div style={{ position: 'relative', zIndex: 2 }}>
       <div style={{
         maxWidth: isMobile ? '100%' : '1400px',
         margin: '0 auto',
         position: 'relative',
-        zIndex: 2,
+        zIndex: 3,
         padding: isMobile ? '0' : '0 2rem'
       }}>
         
@@ -988,6 +984,7 @@ const Gallery = () => {
             </div>
           </div>
         )}
+      </div>
       </div>
     </section>
     </>
