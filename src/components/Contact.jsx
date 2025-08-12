@@ -177,9 +177,21 @@ const Contact = () => {
             padding: '2rem',
             marginBottom: '2rem',
             backdropFilter: 'blur(10px)',
-            border: '2px solid rgba(255, 255, 255, 0.3)'
+            border: '2px solid rgba(255, 255, 255, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}>
-            <span style={{ fontSize: '3rem' }}>🎨</span>
+            <img 
+              src="/nart-logo.png" 
+              alt="N'ART Logo" 
+              style={{ 
+                height: '4rem',
+                width: '4rem',
+                filter: 'brightness(1.2) contrast(1.1)',
+                objectFit: 'contain'
+              }}
+            />
           </div>
           
           {/* Titre principal */}
@@ -360,7 +372,8 @@ const Contact = () => {
                     boxSizing: 'border-box',
                     transition: 'all 0.3s ease',
                     background: 'rgba(255, 255, 255, 0.9)',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    color: '#2c3e50'
                   }}
                   onFocus={(e) => {
                     e.target.style.borderColor = '#a13c2f';
@@ -371,13 +384,13 @@ const Contact = () => {
                     e.target.style.boxShadow = 'none';
                   }}
                 >
-                  <option value="">Choisissez un sujet</option>
-                  <option value="Question sur une œuvre">Question sur une œuvre</option>
-                  <option value="Demande d'achat">Demande d'achat</option>
-                  <option value="Projet d'exposition">Projet d'exposition</option>
-                  <option value="Collaboration artistique">Collaboration artistique</option>
-                  <option value="Presse et médias">Presse et médias</option>
-                  <option value="Autre">Autre</option>
+                  <option value="" style={{ color: '#999' }}>Choisissez un sujet</option>
+                  <option value="Question sur une œuvre" style={{ color: '#2c3e50' }}>Question sur une œuvre</option>
+                  <option value="Demande d'achat" style={{ color: '#2c3e50' }}>Demande d'achat</option>
+                  <option value="Projet d'exposition" style={{ color: '#2c3e50' }}>Projet d'exposition</option>
+                  <option value="Collaboration artistique" style={{ color: '#2c3e50' }}>Collaboration artistique</option>
+                  <option value="Presse et médias" style={{ color: '#2c3e50' }}>Presse et médias</option>
+                  <option value="Autre" style={{ color: '#2c3e50' }}>Autre</option>
                 </select>
               </div>
 
