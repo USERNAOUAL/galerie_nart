@@ -129,21 +129,17 @@ function App() {
                       lineHeight: '1.2',
                       textAlign: 'center'
                     }}>
-                      {window.innerWidth <= 480 ? 'L\'art qui émeut' : 'Créer des émotions'}
-                      {window.innerWidth > 480 && (
-                        <>
-                          <br />
-                          <span style={{
-                            fontWeight: '700',
-                            background: 'linear-gradient(135deg, #ffffff 0%, #f8f6f2 100%)',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                            backgroundClip: 'text'
-                          }}>
-                            à travers l'art
-                          </span>
-                        </>
-                      )}
+                      Créer des émotions
+                      <br />
+                      <span style={{
+                        fontWeight: '700',
+                        background: 'linear-gradient(135deg, #ffffff 0%, #f8f6f2 100%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
+                      }}>
+                        à travers l'art
+                      </span>
                     </h1>
                     
                     {/* Sous-titre élégant */}
@@ -159,27 +155,25 @@ function App() {
                       textAlign: 'center',
                       lineHeight: '1.4'
                     }}>
-                      {window.innerWidth <= 480 ? 'Art authentique' : 'Découvrez l\'authenticité de l\'art véritable'}
+                      Découvrez l'authenticité de l'art véritable
                     </p>
                   </div>
                   
                   {/* Flèche descendante animée */}
-                  {window.innerWidth > 480 && (
-                    <div style={{
-                      position: 'absolute',
-                      bottom: window.innerWidth <= 768 ? '1.5rem' : '3rem',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      color: 'rgba(255, 255, 255, 0.85)',
-                      fontSize: window.innerWidth <= 768 ? '2rem' : '2.5rem',
-                      animation: 'bounce 2s infinite',
-                      cursor: 'pointer',
-                      zIndex: 3,
-                      textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)'
-                    }}>
-                      ↓
-                    </div>
-                  )}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: window.innerWidth <= 768 ? '1.5rem' : '3rem',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    color: 'rgba(255, 255, 255, 0.85)',
+                    fontSize: window.innerWidth <= 768 ? '2rem' : '2.5rem',
+                    animation: 'bounce 2s infinite',
+                    cursor: 'pointer',
+                    zIndex: 3,
+                    textShadow: '0 2px 10px rgba(0, 0, 0, 0.5)'
+                  }}>
+                    ↓
+                  </div>
                 </div>
 
                 <Gallery 
