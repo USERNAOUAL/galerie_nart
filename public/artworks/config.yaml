@@ -41,4 +41,34 @@ artworks:
     dimensions: "40x50 cm"
     image: "vase.jpg"
     
+  - id: "fenetre"
+    title: "Fenêtre sur l'Art"
+    description: "Une perspective unique offrant une vue artistique sur le monde extérieur."
+    dimensions: "50x70 cm"
+    image: "fenetre.jpg"
+    
+  - id: "la_ghaleb"
+    title: "La Ghaleb"
+    description: "Une œuvre inspirée des traditions artistiques, mêlant modernité et héritage culturel."
+    dimensions: "60x80 cm"
+    image: "la_ghaleb.jpg"
+    
+  - id: "majorelle"
+    title: "Jardin Majorelle"
+    description: "Inspiration puisée dans les couleurs vibrantes et l'atmosphère unique du célèbre jardin."
+    dimensions: "55x75 cm"
+    image: "majorelle.jpg"
+    
+  - id: "montagne"
+    title: "Paysage Montagnard"
+    description: "Représentation majestueuse des sommets et de la beauté naturelle des montagnes."
+    dimensions: "65x85 cm"
+    image: "montagne.jpg"
+    
+  - id: "yellow_flower"
+    title: "Fleur Dorée"
+    description: "Célébration de la beauté florale avec des tons dorés éclatants et chaleureux."
+    dimensions: "45x60 cm"
+    image: "yellow_flower.jpg"
+    
   
