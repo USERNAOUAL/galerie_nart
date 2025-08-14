@@ -97,8 +97,7 @@ const Footer = () => {
               fontStyle: 'italic',
               textAlign: 'center'
             }}>
-              "L’art est ce lieu fragile où l’âme se dévoile sans bruit. Il est cette respiration silencieuse qui nous relie à ce que nous avons de plus humain, de plus vrai, de plus universel. Il ne crie pas, il murmure, et pourtant il bouleverse." 
-              <br />
+              "L’art lave notre âme de la poussière du quotidien."
               <span style={{
                 fontSize: '0.8rem',
                 color: 'rgba(255, 255, 255, 0.6)',
@@ -106,7 +105,7 @@ const Footer = () => {
                 marginTop: '0.5rem',
                 display: 'block'
               }}>
-                — Christian Bobin
+                — Pablo Picasso
               </span>
             </p>
             
