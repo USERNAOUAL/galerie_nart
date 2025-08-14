@@ -7,6 +7,7 @@ import ArtworkDetail from './components/ArtworkDetail';
 import ArtworkImage from './components/ArtworkImage';
 import About from './components/About';
 import Contact from './components/Contact';
+import Footer from './components/Footer';
 import { getAssetPath } from './utils/assetUtils';
 
 import { useState, useEffect } from 'react';
@@ -217,6 +218,7 @@ function App() {
           />
         </Routes>
         
+        <Footer />
         {/* Style CSS pour l'animation */}
         <style jsx>{`
           @keyframes bounce {
