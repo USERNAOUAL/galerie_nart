@@ -71,4 +71,28 @@ artworks:
     dimensions: "45x60 cm"
     image: "yellow_flower.jpg"
     
+  - id: "coucher_soleil"
+    title: "Coucher de Soleil"
+    description: "Capture poétique des dernières lueurs du jour, peignant le ciel de couleurs chatoyantes."
+    dimensions: "70x90 cm"
+    image: "coucher_soleil.jpg"
+    
+  - id: "dessin_gibli"
+    title: "Inspiration Ghibli"
+    description: "Hommage artistique à l'univers enchanteur du Studio Ghibli, mêlant rêve et réalité."
+    dimensions: "50x65 cm"
+    image: "dessin_gibli.jpg"
+    
+  - id: "fleurs_jaune"
+    title: "Bouquet Lumineux"
+    description: "Explosion de couleurs jaunes célébrant la joie et la vitalité des fleurs printanières."
+    dimensions: "40x55 cm"
+    image: "fleurs_jaune.jpg"
+    
+  - id: "vase_bleu"
+    title: "Vase Azur"
+    description: "Nature morte élégante mettant en valeur les nuances subtiles du bleu et la beauté des formes simples."
+    dimensions: "35x50 cm"
+    image: "vase_bleu.jpg"
+    
   
