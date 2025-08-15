@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>N'ART Gallery - Social Card</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f8f6f2 0%, #ffffff 100%);
+            padding: 2rem;
+            width: 1200px;
+            height: 630px;
+            overflow: hidden;
+        }
+        
+        .social-card-container {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(161, 60, 47, 0.15);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #a13c2f, #8b2f23);
+            color: white;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .logo {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            padding: 5px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 50%;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .stats {
+            position: absolute;
+            top: 1rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .gallery-preview {
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            height: calc(100% - 140px);
+        }
+        
+        .artwork-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+        
+        .artwork-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .artwork-info {
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .artwork-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .artwork-description {
+            color: #5a6c7d;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+        }
+        
+        .artwork-stats {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #a13c2f;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-love {
+            background: #a13c2f;
+            color: white;
+        }
+        
+        .btn-interest {
+            background: #2c3e50;
+            color: white;
+        }
+        
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-brush {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.1;
+        }
+        
+        .brush-1 { top: 20%; left: 10%; }
+        .brush-2 { top: 70%; right: 10%; }
+        .brush-3 { bottom: 20%; left: 20%; }
+    </style>
+</head>
+<body>
+    <div class="social-card-container">
+        <div class="floating-elements">
+            <div class="floating-brush brush-1">🎨</div>
+            <div class="floating-brush brush-2">🖌️</div>
+            <div class="floating-brush brush-3">🎭</div>
+        </div>
+        
+        <div class="header">
+            <div class="stats">✨ 16 œuvres disponibles</div>
+            <div class="logo">
+                <img src="/nart-logo.png" alt="N'ART Logo" />
+            </div>
+            <p>Créer des émotions à travers l'art</p>
+        </div>
+        
+        <div class="gallery-preview">
+            <div class="artwork-card">
+                <div class="artwork-stats">❤️ 132 | 👁️ 1</div>
+                <img src="/artworks/abstrait.jpg" alt="Abstraction Moderne" class="artwork-image">
+                <div class="artwork-info">
+                    <h3 class="artwork-title">Abstraction Moderne</h3>
+                    <p class="artwork-description">Une œuvre abstraite exprimant les émotions à travers les formes et les couleurs.</p>
+                    <div class="buttons">
+                        <button class="btn btn-love">❤️ J'adore (132)</button>
+                        <button class="btn btn-interest">💌 Ça m'intéresse</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="artwork-card">
+                <div class="artwork-stats">❤️ 25 | 👁️ 0</div>
+                <img src="/artworks/bateau.jpg" alt="Navigation" class="artwork-image">
+                <div class="artwork-info">
+                    <h3 class="artwork-title">Navigation</h3>
+                    <p class="artwork-description">Une peinture maritime capturant l'essence de la navigation et des horizons infinis.</p>
+                    <div class="buttons">
+                        <button class="btn btn-love">❤️ J'adore (25)</button>
+                        <button class="btn btn-interest">💌 Ça m'intéresse</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

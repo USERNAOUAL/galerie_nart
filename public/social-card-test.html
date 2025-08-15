@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Cartes Sociales - N'ART</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f8f6f2 0%, #ffffff 100%);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #a13c2f, #8b2f23);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .content {
+            padding: 2rem;
+        }
+        
+        .social-card {
+            border: 1px solid #e1e8ed;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .card-content {
+            padding: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #14171a;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+        
+        .card-description {
+            color: #536471;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+        
+        .card-url {
+            color: #1d9bf0;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .platform {
+            background: #f7f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .platform h3 {
+            color: #a13c2f;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .test-links {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+        
+        .test-links h3 {
+            color: #a13c2f;
+            margin-bottom: 1rem;
+        }
+        
+        .test-links a {
+            display: inline-block;
+            background: #a13c2f;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            margin: 0.25rem;
+            transition: all 0.3s ease;
+        }
+        
+        .test-links a:hover {
+            background: #8b2f23;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎨 Test des Cartes Sociales N'ART</h1>
+            <p>Aperçu de l'affichage sur les réseaux sociaux</p>
+        </div>
+        
+        <div class="content">
+            <div class="platform">
+                <h3>📘 Facebook / Meta</h3>
+                <div class="social-card">
+                    <img src="/nart-social-card.jpg" alt="N'ART Gallery - Carte Sociale" class="card-image">
+                    <div class="card-content">
+                        <div class="card-title">N'ART - Galerie d'Art en Ligne | Créer des émotions à travers l'art</div>
+                        <div class="card-description">Découvrez l'authenticité de l'art véritable avec N'ART. Galerie d'art en ligne présentant des œuvres uniques : paysages, abstraits, portraits et natures mortes.</div>
+                        <a href="https://usernaoual.github.io/" class="card-url">usernaoual.github.io</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="platform">
+                <h3>🐦 Twitter / X</h3>
+                <div class="social-card">
+                    <img src="/nart-social-card.jpg" alt="N'ART Gallery - Carte Sociale" class="card-image">
+                    <div class="card-content">
+                        <div class="card-title">N'ART - Galerie d'Art en Ligne | Créer des émotions à travers l'art</div>
+                        <div class="card-description">Découvrez l'authenticité de l'art véritable avec N'ART. Galerie d'art en ligne présentant des œuvres uniques.</div>
+                        <a href="https://usernaoual.github.io/" class="card-url">usernaoual.github.io</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="platform">
+                <h3>💼 LinkedIn</h3>
+                <div class="social-card">
+                    <img src="/nart-social-card.jpg" alt="N'ART Gallery - Carte Sociale" class="card-image">
+                    <div class="card-content">
+                        <div class="card-title">N'ART - Galerie d'Art en Ligne | Créer des émotions à travers l'art</div>
+                        <div class="card-description">Découvrez l'authenticité de l'art véritable avec N'ART. Galerie d'art en ligne présentant des œuvres uniques : paysages, abstraits, portraits et natures mortes.</div>
+                        <a href="https://usernaoual.github.io/" class="card-url">usernaoual.github.io</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="test-links">
+                <h3>🔍 Outils de Test</h3>
+                <p>Utilisez ces outils pour tester vos cartes sociales :</p>
+                <a href="https://developers.facebook.com/tools/debug/" target="_blank">Facebook Debugger</a>
+                <a href="https://cards-dev.twitter.com/validator" target="_blank">Twitter Card Validator</a>
+                <a href="https://www.linkedin.com/post-inspector/" target="_blank">LinkedIn Post Inspector</a>
+                <a href="https://www.opengraph.xyz/" target="_blank">Open Graph Checker</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
