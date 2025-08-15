@@ -1,0 +1,51 @@
+/* Correction spécifique pour le centrage du menu sur mobile */
+
+@media (max-width: 768px) {
+  /* Force le centrage absolu du menu */
+  .menu.inspired-menu {
+    position: relative !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 95vw !important;
+    max-width: 95vw !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+  
+  /* Centrage du contenu du menu */
+  .menu.inspired-menu .logo-container {
+    flex: none !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+  
+  .menu.inspired-menu .horizontal-links {
+    flex: 1 !important;
+    justify-content: center !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+  
+  .menu.inspired-menu .contact-btn {
+    flex: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .menu.inspired-menu {
+    width: 90vw !important;
+    max-width: 90vw !important;
+    padding: 0.3rem 0.5rem !important;
+  }
+}
+
+@media (max-width: 360px) {
+  .menu.inspired-menu {
+    width: 85vw !important;
+    max-width: 85vw !important;
+  }
+}

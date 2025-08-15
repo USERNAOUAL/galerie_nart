@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import emailjs from '@emailjs/browser';
 import { EMAIL_CONFIG } from '../config/emailConfig';
+import { trackContactFormSubmit } from '../utils/analytics';
 import '../styles/Contact.css';
 
 const Contact = () => {

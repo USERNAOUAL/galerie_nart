@@ -3,6 +3,9 @@ import emailjs from '@emailjs/browser';
 import { EMAIL_CONFIG } from '../config/emailConfig';
 import firebaseService from '../services/firebaseService';
 import { getAssetPath } from '../utils/assetUtils';
+import { trackArtworkView, trackInterestClick, trackGalleryNavigation, trackLikeAction, trackSearchUsage, trackContactInterest } from '../utils/analytics';
+import { useAnalytics } from '../contexts/AnalyticsContext';
+import { usePageTimeTracking, useInteractionTracking } from '../hooks/useAnalytics';
 import "../styles/Gallery.css";
 
 // Fonction pour charger les interactions depuis le fichier YAML
@@ -110,6 +113,8 @@ const loadArtworksFromConfig = async () => {
           currentArtwork.dimensions = trimmed.split(':')[1].trim().replace(/['"]/g, '');
         } else if (trimmed.startsWith('image:')) {
           currentArtwork.image = getAssetPath(`artworks/${trimmed.split(':')[1].trim().replace(/['"]/g, '')}`);
+        } else if (trimmed.startsWith('category:')) {
+          currentArtwork.category = trimmed.split(':')[1].trim().replace(/['"]/g, '');
         }
       }
     }
@@ -200,6 +205,11 @@ const loadArtworksFromConfig = async () => {
 
 const Gallery = () => {
   
+  // Hooks Analytics
+  const analytics = useAnalytics();
+  usePageTimeTracking('Gallery');
+  const { trackClick, trackScroll } = useInteractionTracking();
+  
   // Charger les œuvres depuis le fichier de configuration
   const [artworks, setArtworks] = useState([]);
   const [interactions, setInteractions] = useState({});
@@ -286,12 +296,76 @@ const Gallery = () => {
     loadData();
   }, []);
 
+  // Suivi du défilement pour Analytics
+  useEffect(() => {
+    let scrollTimeout;
+    const scrollThresholds = [25, 50, 75, 90, 100];
+    const trackedThresholds = new Set();
+
+    const handleScroll = () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const scrollTop = window.pageYOffset;
+        const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = (scrollTop / documentHeight) * 100;
+
+        // Tracker les seuils de défilement
+        scrollThresholds.forEach(threshold => {
+          if (scrollPercent >= threshold && !trackedThresholds.has(threshold)) {
+            trackedThresholds.add(threshold);
+            trackScroll(threshold, 'Gallery');
+          }
+        });
+      }, 150);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(scrollTimeout);
+    };
+  }, [trackScroll]);
+
   // Nettoyer les abonnements Firebase au démontage du composant
   useEffect(() => {
     return () => {
       firebaseService.unsubscribeAll();
     };
-  }, []);  // Filtrer les œuvres par recherche seulement
+  }, []);  // Fonctions pour gérer les modales avec tracking
+  const handleImageModalOpen = (artwork) => {
+    setSelectedImageModal(artwork);
+    
+    // Tracker l'ouverture de la modale et la vue détaillée de l'œuvre
+    analytics.trackArtwork('detail', artwork.id, artwork.title);
+    analytics.trackModal('open', 'artwork_image', artwork.id);
+    trackClick('artwork_image', artwork.id, { artwork_title: artwork.title });
+  };
+
+  const handleImageModalClose = () => {
+    if (selectedImageModal) {
+      analytics.trackModal('close', 'artwork_image');
+    }
+    setSelectedImageModal(null);
+  };
+  const handleSearchChange = (searchValue) => {
+    setSearchTerm(searchValue);
+    
+    // Tracker la recherche si elle contient au moins 2 caractères
+    if (searchValue.length >= 2) {
+      const resultsCount = artworks.filter(art => 
+        art.title.toLowerCase().includes(searchValue.toLowerCase()) || 
+        art.description.toLowerCase().includes(searchValue.toLowerCase())
+      ).length;
+      
+      analytics.trackSearch(searchValue, resultsCount);
+      trackClick('search_input', 'gallery_search', { 
+        search_term: searchValue,
+        results_count: resultsCount 
+      });
+    }
+  };
+
+  // Filtrer les œuvres par recherche seulement
   const filteredArtworks = artworks.filter(art => {
     const matchesSearch = art.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          art.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -328,6 +402,14 @@ const Gallery = () => {
   // Gestion des likes avec Firebase
   const handleLike = async (artworkId) => {
     try {
+      const artwork = artworks.find(art => art.id === artworkId);
+      
+      // Tracker l'action de like
+      if (artwork) {
+        analytics.trackArtwork('like', artworkId, artwork.title);
+        trackClick('like_button', artworkId, { artwork_title: artwork.title });
+      }
+      
       // Incrémenter les likes via Firebase
       const success = await firebaseService.addLike(artworkId);
       
@@ -348,6 +430,17 @@ const Gallery = () => {
     setEmailStatus('sending');
     
     const artwork = artworks.find(art => art.id === artworkId);
+    
+    // Tracker l'action d'intérêt
+    if (artwork) {
+      analytics.trackArtwork('interest', artworkId, artwork.title);
+      analytics.trackArtwork('contact', artworkId, artwork.title);
+      trackClick('interest_button', artworkId, { 
+        artwork_title: artwork.title,
+        user_email: email 
+      });
+    }
+    
     const newMessage = {
       name,
       email,
@@ -570,7 +663,7 @@ const Gallery = () => {
                   type="text"
                   placeholder="🎨 Rechercher une œuvre d'art..."
                   value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
+                  onChange={e => handleSearchChange(e.target.value)}
                   style={{
                     width: '100%',
                     padding: '1rem 1.5rem',
@@ -653,7 +746,7 @@ const Gallery = () => {
                   <img 
                     src={art.image} 
                     alt={art.title} 
-                    onClick={() => setSelectedImageModal(art)}
+                    onClick={() => handleImageModalOpen(art)}
                     style={{
                       width: '100%',
                       height: '100%',
@@ -903,7 +996,7 @@ const Gallery = () => {
             justifyContent: 'center',
             zIndex: 10000
           }}
-          onClick={() => setSelectedImageModal(null)}
+          onClick={handleImageModalClose}
           >
             <div style={{
               position: 'relative',
@@ -918,7 +1011,7 @@ const Gallery = () => {
             >
               {/* Bouton fermer */}
               <button 
-                onClick={() => setSelectedImageModal(null)} 
+                onClick={handleImageModalClose} 
                 style={{
                   position: 'absolute',
                   top: '-50px',

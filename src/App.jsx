@@ -8,10 +8,18 @@ import ArtworkImage from './components/ArtworkImage';
 import About from './components/About';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import AnalyticsTest from './components/AnalyticsTest';
 import { getAssetPath } from './utils/assetUtils';
+import { initGA, trackPageView } from './utils/analytics';
+import { 
+  useSessionTracking, 
+  usePerformanceTracking, 
+  useErrorTracking 
+} from './hooks/useAnalytics';
+import { AnalyticsProvider } from './contexts/AnalyticsContext';
 
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useSearchParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 
 // Import des polices Google Fonts.
 const fontLink = document.createElement('link');
@@ -21,18 +29,42 @@ if (!document.head.querySelector(`link[href="${fontLink.href}"]`)) {
   document.head.appendChild(fontLink);
 }
 
+// Composant pour tracker les changements de page
+function AnalyticsTracker() {
+  const location = useLocation();
+
+  useEffect(() => {
+    // Tracker chaque changement de page
+    trackPageView(window.location.href, document.title);
+  }, [location]);
+
+  return null;
+}
+
 function App() {
   const [showMessages, setShowMessages] = useState(false);
   const [interests, setInterests] = useState([]);
   const [artworks, setArtworks] = useState([]);
 
+  // Hooks Analytics
+  const { incrementPageView, incrementInteraction } = useSessionTracking();
+  usePerformanceTracking();
+  useErrorTracking();
+
+  // Initialiser Google Analytics au chargement de l'app
+  useEffect(() => {
+    initGA();
+  }, []);
+
   // Get basename from Vite config for consistency
   const basename = '/';
 
   return (
-    <Router basename={basename}>
-      <div>
-        <Menu />
+    <AnalyticsProvider>
+      <Router basename={basename}>
+        <div>
+          <AnalyticsTracker />
+          <Menu />
         
         <Routes>
           <Route 
@@ -216,6 +248,11 @@ function App() {
             path="/contact" 
             element={<Contact />} 
           />
+          
+          <Route 
+            path="/analytics-test" 
+            element={<AnalyticsTest />} 
+          />
         </Routes>
         
         <Footer />
@@ -279,6 +316,7 @@ function App() {
         `}</style>
       </div>
     </Router>
+    </AnalyticsProvider>
   );
 }
 
