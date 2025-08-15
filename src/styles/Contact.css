@@ -32,10 +32,10 @@
   min-height: 600px;
   background: 
     linear-gradient(135deg, rgba(161, 60, 47, 0.3) 0%, rgba(139, 47, 35, 0.4) 100%),
-    url('/image_contact.jpg?v=1') center/contain no-repeat;
+    url('/image_contact.jpg') center center no-repeat;
   background-attachment: fixed;
   background-position: center center;
-  background-size: contain;
+  background-size: cover;
   background-repeat: no-repeat;
   display: flex;
   align-items: center;
