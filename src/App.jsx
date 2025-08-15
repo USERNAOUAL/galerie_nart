@@ -9,6 +9,7 @@ import About from './components/About';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import AnalyticsTest from './components/AnalyticsTest';
+import AnalyticsDebugger from './components/AnalyticsDebugger';
 import { getAssetPath } from './utils/assetUtils';
 import { initGA, trackPageView } from './utils/analytics';
 import { 
@@ -315,6 +316,8 @@ function App() {
           }
         `}</style>
       </div>
+      {/* Analytics Debugger - seulement en développement */}
+      {import.meta.env.DEV && <AnalyticsDebugger />}
     </Router>
     </AnalyticsProvider>
   );
