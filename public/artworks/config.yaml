@@ -55,9 +55,9 @@ artworks:
     image: "fenetre.jpg"
     category: "Abstrait"
     
-  - id: "la_ghaleb"
-    title: "La Ghaleb"
-    description: "Une œuvre inspirée des traditions artistiques, mêlant modernité et héritage culturel."
+  - id: "Arabic "
+    title: "Arabic calligraphy"
+    description: "Et il n'y qu'autre vaiqueur qu'Allah, le Tout-Puissant, le Sage."
     dimensions: "60x80 cm"
     image: "la_ghaleb.jpg"
     category: "Culturel"
